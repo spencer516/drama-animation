@@ -7,7 +7,7 @@ export default makeScene2D(function* (view) {
 
   view.add(<LEDSystem ref={ledSystem} />);
 
-  yield* tween(2, (value) => {
+  yield* tween(0.25, (value) => {
     ledSystem().fillAll(
       Color.lerp(
         new Color("#e6a700"),
@@ -17,13 +17,13 @@ export default makeScene2D(function* (view) {
     );
   });
 
-  yield* tween(2, (value) => {
-    ledSystem().fillAll(
-      Color.lerp(
-        new Color("#e13238"),
-        new Color("black"),
-        easeInOutCubic(value)
-      )
-    );
-  });
+  // yield* tween(2, (value) => {
+  //   ledSystem().fillAll(
+  //     Color.lerp(
+  //       new Color("#e13238"),
+  //       new Color("black"),
+  //       easeInOutCubic(value)
+  //     )
+  //   );
+  // });
 });

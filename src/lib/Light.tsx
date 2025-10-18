@@ -14,6 +14,7 @@ import {
   SimpleSignal,
 } from "@motion-canvas/core";
 import { Coordinates, LightID, LightsArray } from "./lights-array";
+import LEDExporter from "./LEDExporter";
 
 export interface LightProps extends NodeProps {
   lightID: LightID;
@@ -44,8 +45,10 @@ export class Light extends Node {
       <Circle ref={this.circle} size={10} x={x} y={y} fill={this.color()} />
     );
 
+    const lightID = this.lightID();
+
     createEffect(() => {
-      // console.log("Color changed", this.color()?.rgb());
+      LEDExporter.updateLight(lightID, this.color());
     });
   }
 
