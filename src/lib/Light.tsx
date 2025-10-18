@@ -13,8 +13,9 @@ import {
   createRef,
   SimpleSignal,
 } from "@motion-canvas/core";
-import { Coordinates, LightID, LightsArray } from "./lights-array";
+import { LightID } from "./lights-array";
 import LEDExporter from "./LEDExporter";
+import { Coordinates } from "./coordinate-system";
 
 export interface LightProps extends NodeProps {
   lightID: LightID;

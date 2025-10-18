@@ -19,10 +19,13 @@ const ACTIVE_EXPORTERS: Set<LEDExporter> = new Set();
 
 export default class LEDExporter {
   private lightState: Map<LightID, Color> = new Map();
+  private projectName: string;
 
   private frames: Frame[] = [];
 
-  public constructor() {
+  public constructor(projectName: string) {
+    this.projectName = projectName;
+
     for (const [lightID] of Object.entries(LightsArray)) {
       this.lightState.set(lightID as LightID, new Color("black"));
     }
@@ -38,8 +41,8 @@ export default class LEDExporter {
     this.lightState.set(lightID, color);
   }
 
-  static start(renderer: Renderer) {
-    const exporter = new LEDExporter();
+  static start(projectName: string, renderer: Renderer) {
+    const exporter = new LEDExporter(projectName);
 
     ACTIVE_EXPORTERS.add(exporter);
 
@@ -71,7 +74,7 @@ export default class LEDExporter {
     this.frames.push(newFrame);
   }
 
-  public finalize() {
+  public async finalize() {
     const frames = this.frames.map((frame) => {
       const currentFrame: SerializedFrame = {};
 
@@ -90,8 +93,13 @@ export default class LEDExporter {
       return currentFrame;
     });
 
-    console.log("EXPORTING FRAMES JSON");
-    console.log(frames);
+    await fetch("/persist-led-json", {
+      method: "POST",
+      body: JSON.stringify({ projectName: this.projectName, frames }),
+      headers: { "Content-Type": "application/json" },
+    }).catch((err) => {
+      console.error(err);
+    });
   }
 }
 

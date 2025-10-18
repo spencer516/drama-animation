@@ -1,4 +1,7 @@
 {
   "extends": "@motion-canvas/2d/tsconfig.project.json",
-  "include": ["src", "lib/led-exporter"]
+  "include": ["src", "lib/led-exporter", "vite-server-plugin.ts"],
+  "compilerOptions": {
+    "target": "es2022",
+  }
 }
