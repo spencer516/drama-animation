@@ -1,6 +1,7 @@
 import {
   Circle,
   colorSignal,
+  initial,
   Node,
   NodeProps,
   signal,
@@ -10,26 +11,25 @@ import {
   ColorSignal,
   createEffect,
   createRef,
+  SimpleSignal,
 } from "@motion-canvas/core";
-
-const lights = {
-  "1": { x: 20, y: 20 },
-  "2": { x: 60, y: 20 },
-  "3": { x: 100, y: 20 },
-};
-
-type LightID = keyof typeof lights;
+import { Coordinates, LightID, LightsArray } from "./lights-array";
 
 export interface LightProps extends NodeProps {
   lightID: LightID;
+  coordinates: Coordinates;
 }
 
 export class Light extends Node {
   @signal()
-  public declare readonly lightID: LightID;
+  public declare readonly lightID: SimpleSignal<LightID, this>;
+
+  @signal()
+  public declare readonly coordinates: SimpleSignal<Coordinates, this>;
 
   private readonly circle = createRef<Circle>();
 
+  @initial("black")
   @colorSignal()
   private declare readonly color: ColorSignal<this>;
 
@@ -38,16 +38,14 @@ export class Light extends Node {
       ...props,
     });
 
-    // const { x, y } = lights[this.lightID()];
-    const x = 0;
-    const y = 0;
+    const { x, y } = this.coordinates();
 
     this.add(
-      <Circle ref={this.circle} size={25} x={x} y={y} fill={this.color()} />
+      <Circle ref={this.circle} size={10} x={x} y={y} fill={this.color()} />
     );
 
     createEffect(() => {
-      console.log("Color changed", this.color()?.rgb());
+      // console.log("Color changed", this.color()?.rgb());
     });
   }
 
