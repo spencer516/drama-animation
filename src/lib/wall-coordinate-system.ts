@@ -52,10 +52,14 @@ export function positionsToCoordinates(positions: Position[]): Coordinates[] {
 
 export function positionToRect(
   startPosition: Position,
-  endPosition: Position
+  offsetWidth: number = 1,
+  offsetHeight: number = 1
 ): { x: number; y: number; width: number; height: number } {
   const [sx, sy] = positionToCoordinates(startPosition);
-  const [ex, ey] = positionToCoordinates(endPosition);
+  const [ex, ey] = positionToCoordinates([
+    startPosition[0] + offsetWidth,
+    startPosition[1] + offsetHeight,
+  ] as Position);
 
   const width = ex - sx;
   const height = ey - sy;

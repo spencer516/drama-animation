@@ -22,7 +22,7 @@ export default makeScene2D(function* (view) {
   const line = createRef<Line>();
 
   view.add(
-    <Rect ref={rect} fill={"white"} {...positionToRect([1, 0], [3, 2])} />
+    <Rect ref={rect} fill={"white"} {...positionToRect([1, 0], 3, 2)} />
   );
 
   const points: Position[] = [
@@ -41,8 +41,10 @@ export default makeScene2D(function* (view) {
       stroke={"blue"}
       lineWidth={8}
       endOffset={positionsToDistance(points)}
-      radius={3}
+      radius={10}
       points={positionsToCoordinates(points)}
+      endArrow
+      arrowSize={20}
     />
   );
 
