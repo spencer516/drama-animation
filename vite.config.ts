@@ -12,7 +12,7 @@ export default defineConfig({
   },
   plugins: [
     motionCanvas({
-      project: ["./src/projects/*/project.ts"],
+      project: ["./src/projects/*/project.tsx"],
     }),
     ffmpeg(),
     ledPlugin(),

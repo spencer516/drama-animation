@@ -3,5 +3,8 @@
   "include": ["src", "lib/led-exporter", "vite-server-plugin.ts"],
   "compilerOptions": {
     "target": "es2022",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
   }
 }

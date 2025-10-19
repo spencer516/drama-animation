@@ -17,6 +17,16 @@ const translateX = -900;
 const translateY = -300;
 const scale = 120;
 
+export function sequenceRows(includeLast: boolean = true): RowPosition[] {
+  return includeLast ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 3, 4];
+}
+
+export function sequenceColumns(includeLast: boolean = true): ColumnPosition[] {
+  return includeLast
+    ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+}
+
 export function positionToCoordinates([column, row]: Position): Coordinates {
   const x = column * scale + translateX;
   const y = row * scale + translateY;

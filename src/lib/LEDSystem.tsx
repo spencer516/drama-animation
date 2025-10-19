@@ -1,8 +1,7 @@
-import { Layout, Node, NodeProps } from "@motion-canvas/2d";
+import { Layout, Node, NodeProps, Rect, View2D } from "@motion-canvas/2d";
 import { LightID, LightsArray } from "./lights-array";
 import {
   all,
-  any,
   Color,
   createRef,
   Reference,
@@ -24,6 +23,23 @@ type LightRefMap = Map<
   LightID,
   { ref: Reference<Light>; coordinates: Coordinates }
 >;
+
+export function setupLEDScene(view: View2D): {
+  ledSystem: Reference<LEDSystem>;
+  screen: Reference<Rect>;
+} {
+  const screen = createRef<Rect>();
+  const ledSystem = createRef<LEDSystem>();
+
+  view.add(
+    <>
+      <Rect ref={screen} width="100%" height="100%" />
+      <LEDSystem ref={ledSystem} />
+    </>
+  );
+
+  return { ledSystem, screen };
+}
 
 export class LEDSystem extends Node {
   private readonly lights: LightRefMap = new Map();
