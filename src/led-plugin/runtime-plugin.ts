@@ -13,8 +13,11 @@ export default makePlugin(() => {
     name: "led-runtime",
     renderer(renderer) {
       const prevRenderer = renderer.render;
+      let isLEDExporter = false;
       renderer.render = function (settings: RendererSettings) {
-        if (settings?.exporter.name !== LEDExporter.id) {
+        isLEDExporter = settings?.exporter.name === LEDExporter.id;
+
+        if (!isLEDExporter) {
           LEDExporterState.hideLEDs();
         }
 
@@ -22,7 +25,7 @@ export default makePlugin(() => {
       };
 
       renderer.onStateChanged.subscribe((renderState) => {
-        if (renderState === RendererState.Working) {
+        if (isLEDExporter && renderState === RendererState.Working) {
           LEDExporterState.start(projectName, renderer);
         }
       });
