@@ -12,7 +12,7 @@ export default function myVitePlugin(): Plugin {
   return {
     name: "led-server-plugin",
     configureServer(server) {
-      server.middlewares.use("/persist-led-json", json());
+      server.middlewares.use("/persist-led-json", json({ limit: "50mb" }));
       server.middlewares.use(
         "/persist-led-json",
         async (req: BodyRequest, res) => {
@@ -26,7 +26,7 @@ export default function myVitePlugin(): Plugin {
       );
     },
     [PLUGIN_OPTIONS]: {
-      entryPoint: "@/lib/runtime-plugin.ts",
+      entryPoint: "@/led-plugin/runtime-plugin.ts",
     },
   };
 }

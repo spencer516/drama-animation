@@ -15,13 +15,27 @@ type SerializedFrame = {
   [channel: string]: number;
 };
 
-const ACTIVE_EXPORTERS: Set<LEDExporter> = new Set();
+const ACTIVE_EXPORTERS: Set<LEDExporterState> = new Set();
 
-export default class LEDExporter {
+export default class LEDExporterState {
   private lightState: Map<LightID, Color> = new Map();
   private projectName: string;
 
   private frames: Frame[] = [];
+
+  private static areLEDsVisible: boolean = true;
+
+  static get shouldHideLEDs() {
+    return !this.areLEDsVisible;
+  }
+
+  static hideLEDs() {
+    this.areLEDsVisible = false;
+  }
+
+  static showLEDs() {
+    this.areLEDsVisible = true;
+  }
 
   public constructor(projectName: string) {
     this.projectName = projectName;
@@ -42,7 +56,7 @@ export default class LEDExporter {
   }
 
   static start(projectName: string, renderer: Renderer) {
-    const exporter = new LEDExporter(projectName);
+    const exporter = new LEDExporterState(projectName);
 
     ACTIVE_EXPORTERS.add(exporter);
 

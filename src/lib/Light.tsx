@@ -16,7 +16,7 @@ import {
   ThreadGenerator,
 } from "@motion-canvas/core";
 import { LightID } from "./lights-array";
-import LEDExporter from "./LEDExporter";
+import LEDExporterState from "./LEDExporterState";
 import { Coordinates } from "./wall-coordinate-system";
 
 export interface LightProps extends NodeProps {
@@ -58,7 +58,7 @@ export class Light extends Node {
     const lightID = this.lightID();
 
     createDeferredEffect(() => {
-      LEDExporter.updateLight(lightID, this.color());
+      LEDExporterState.updateLight(lightID, this.color());
     });
   }
 
@@ -69,6 +69,10 @@ export class Light extends Node {
     color: Color,
     duration: number | null = null
   ): void | ThreadGenerator {
+    if (LEDExporterState.shouldHideLEDs) {
+      color = new Color({ r: 0, g: 0, b: 0, a: 0 });
+    }
+
     if (duration == null) {
       this.circle().fill(color);
       this.color(color);
