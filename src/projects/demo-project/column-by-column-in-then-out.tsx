@@ -11,7 +11,13 @@ export default makeScene2D(function* (view) {
 
   screen().add(
     sequenceColumns(false).map((column) => (
-      <Rect ref={boxes} fill={black} {...positionToRect([column, 2])} />
+      <Rect
+        ref={boxes}
+        fill={black}
+        stroke={black}
+        lineWidth={5}
+        {...positionToRect([column, 2])}
+      />
     ))
   );
 
