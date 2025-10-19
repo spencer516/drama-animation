@@ -1,4 +1,4 @@
-import { Position } from "./coordinate-system";
+import { Position } from "./wall-coordinate-system";
 
 export const LightsArray: { [key: string]: Position } = {
   L1: [0, 0],

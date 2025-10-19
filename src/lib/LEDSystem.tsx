@@ -15,7 +15,7 @@ import {
   Position,
   positionToCoordinates,
   RowPosition,
-} from "./coordinate-system";
+} from "./wall-coordinate-system";
 import lightsQuery from "./lights-query";
 
 export interface LEDSystemProps extends NodeProps {}
@@ -28,7 +28,7 @@ type LightRefMap = Map<
 export class LEDSystem extends Node {
   private readonly lights: LightRefMap = new Map();
 
-  public constructor(props?: LEDSystemProps) {
+  public constructor(props: LEDSystemProps) {
     super({
       ...props,
     });

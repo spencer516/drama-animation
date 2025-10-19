@@ -9,7 +9,7 @@ import {
 import {
   Color,
   ColorSignal,
-  createEffect,
+  createDeferredEffect,
   createRef,
   linear,
   SimpleSignal,
@@ -17,7 +17,7 @@ import {
 } from "@motion-canvas/core";
 import { LightID } from "./lights-array";
 import LEDExporter from "./LEDExporter";
-import { Coordinates } from "./coordinate-system";
+import { Coordinates } from "./wall-coordinate-system";
 
 export interface LightProps extends NodeProps {
   lightID: LightID;
@@ -42,15 +42,22 @@ export class Light extends Node {
       ...props,
     });
 
-    const { x, y } = this.coordinates();
+    const [x, y] = this.coordinates();
 
     this.add(
-      <Circle ref={this.circle} size={10} x={x} y={y} fill={this.color()} />
+      <Circle
+        ref={this.circle}
+        size={10}
+        x={x}
+        y={y}
+        fill={this.color()}
+        zIndex={100}
+      />
     );
 
     const lightID = this.lightID();
 
-    createEffect(() => {
+    createDeferredEffect(() => {
       LEDExporter.updateLight(lightID, this.color());
     });
   }

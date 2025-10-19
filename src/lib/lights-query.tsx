@@ -1,6 +1,6 @@
 import Flatbush from "flatbush";
 import { LightID, LightsArray } from "./lights-array";
-import { Position } from "./coordinate-system";
+import { Position } from "./wall-coordinate-system";
 
 const lightRefs = Object.entries(LightsArray).map(([lightID, coordinates]) => ({
   lightID,

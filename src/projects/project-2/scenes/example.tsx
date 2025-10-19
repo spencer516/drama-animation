@@ -1,4 +1,4 @@
-import { Circle, makeScene2D } from "@motion-canvas/2d";
+import { Circle, Line, makeScene2D, Rect } from "@motion-canvas/2d";
 import {
   Color,
   createRef,
@@ -8,59 +8,61 @@ import {
   waitFor,
 } from "@motion-canvas/core";
 import { LEDSystem } from "../../../lib/LEDSystem";
+import {
+  Position,
+  positionsToCoordinates,
+  positionsToDistance,
+  positionToCoordinates,
+  positionToRect,
+} from "../../../lib/wall-coordinate-system";
 
 export default makeScene2D(function* (view) {
   const ledSystem = createRef<LEDSystem>();
+  const rect = createRef<Rect>();
+  const line = createRef<Line>();
+
+  view.add(
+    <Rect ref={rect} fill={"white"} {...positionToRect([1, 0], [3, 2])} />
+  );
+
+  const points: Position[] = [
+    [1, 1],
+    [1, 5],
+    [3, 5],
+    [3, 2],
+    [9, 2],
+    [9, 3],
+    [10, 3],
+  ];
+
+  view.add(
+    <Line
+      ref={line}
+      stroke={"blue"}
+      lineWidth={8}
+      endOffset={positionsToDistance(points)}
+      radius={3}
+      points={positionsToCoordinates(points)}
+    />
+  );
 
   view.add(<LEDSystem ref={ledSystem} />);
 
   const red = { r: 255, g: 0, b: 0, a: 1 };
   const black = { r: 255, g: 0, b: 0, a: 0 };
 
-  yield* waitFor(0);
+  ledSystem().fillAll(new Color(black));
 
-  yield ledSystem().fillAll(new Color(black));
+  ledSystem().fillRow(0, new Color(red));
+  ledSystem().fillRow(1, new Color(red));
+  ledSystem().fillRow(2, new Color(red));
+  ledSystem().fillRow(3, new Color(red));
+  ledSystem().fillRow(4, new Color(red));
+  ledSystem().fillRow(5, new Color(red));
 
-  yield* ledSystem().fillRow(2, new Color(red), 2);
-  // yield* ledSystem().fillID("L25", new Color(black), 2);
+  yield* line().endOffset(0, 2);
 
-  // yield* tween(1, (value) => {
-  //   const color = Color.lerp(
-  //     new Color(red),
-  //     new Color(black),
-  //     easeInOutCubic(value)
-  //   );
+  yield* rect().topLeft(positionToCoordinates([5, 2]), 2);
 
-  //   // ledSystem().fillID("L1", color);
-  //   ledSystem().fillInRange([0, 0], [8, 5], color);
-  // });
-
-  // yield* tween(2, (value) => {
-  //   const color = Color.lerp(
-  //     new Color("#e6a700"),
-  //     new Color("#e13238"),
-  //     easeInOutCubic(value)
-  //   );
-
-  //   ledSystem().fillInRange([0, 0], [8, 5], color);
-
-  //   const color2 = Color.lerp(
-  //     new Color("blue"),
-  //     new Color("white"),
-  //     easeInOutCubic(value)
-  //   );
-
-  //   ledSystem().fillAt([9, 2], color2);
-  // });
-
-  // yield* tween(2, (value) => {
-  //   const color = Color.lerp(
-  //     new Color("pink"),
-  //     new Color("black"),
-  //     easeInOutCubic(value)
-  //   );
-
-  //   ledSystem().fillColumn(2, color);
-  //   ledSystem().fillRow(2, color);
-  // });
+  yield* ledSystem().fillRow(0, new Color("blue"), 2);
 });
