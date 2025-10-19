@@ -1,6 +1,13 @@
 import { Layout, Node, NodeProps } from "@motion-canvas/2d";
 import { LightID, LightsArray } from "./lights-array";
-import { Color, createRef, Reference } from "@motion-canvas/core";
+import {
+  all,
+  any,
+  Color,
+  createRef,
+  Reference,
+  ThreadGenerator,
+} from "@motion-canvas/core";
 import { Light } from "./Light";
 import {
   ColumnPosition,
@@ -53,33 +60,164 @@ export class LEDSystem extends Node {
     }
   }
 
-  public fillID(lightID: LightID, color: Color) {
+  public fillID(lightID: LightID, color: Color): void;
+
+  public fillID(
+    lightID: LightID,
+    color: Color,
+    duration: number
+  ): ThreadGenerator;
+
+  public fillID(
+    lightID: LightID,
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
     const lightRef = this.lights.get(lightID).ref;
-    lightRef().fill(color);
-  }
 
-  public fillAt(position: Position, color: Color) {
-    const lightID = lightsQuery(position).at(0);
-    this.fillID(lightID, color);
-  }
-
-  public fillRow(rowPosition: RowPosition, color: Color) {
-    this.fillInRange([0, rowPosition], [15, rowPosition], color);
-  }
-
-  public fillColumn(columnPosition: ColumnPosition, color: Color) {
-    this.fillInRange([columnPosition, 0], [columnPosition, 5], color);
-  }
-
-  public fillInRange(topLeft: Position, bottomRight: Position, color: Color) {
-    for (const lightID of lightsQuery(topLeft, bottomRight)) {
-      this.fillID(lightID, color);
+    if (duration == null) {
+      lightRef().fill(color);
+    } else {
+      return function* (this: LEDSystem) {
+        yield* lightRef().fill(color, duration);
+      }.apply(this);
     }
   }
 
-  public fillAll(color: Color) {
-    for (const [light] of this.iterate()) {
-      light().fill(color);
+  public fillAt(position: Position, color: Color): void;
+
+  public fillAt(
+    position: Position,
+    color: Color,
+    duration: number
+  ): ThreadGenerator;
+
+  public fillAt(
+    position: Position,
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
+    const lightID = lightsQuery(position).at(0);
+
+    if (duration == null) {
+      this.fillID(lightID, color);
+    } else {
+      return function* (this: LEDSystem) {
+        yield* this.fillID(lightID, color, duration);
+      }.apply(this);
+    }
+  }
+
+  public fillRow(rowPosition: RowPosition, color: Color): void;
+
+  public fillRow(
+    rowPosition: RowPosition,
+    color: Color,
+    duration: number
+  ): ThreadGenerator;
+
+  public fillRow(
+    rowPosition: RowPosition,
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
+    if (duration == null) {
+      this.fillInRange([0, rowPosition], [15, rowPosition], color);
+    } else {
+      return function* (this: LEDSystem) {
+        yield* this.fillInRange(
+          [0, rowPosition],
+          [15, rowPosition],
+          color,
+          duration
+        );
+      }.apply(this);
+    }
+  }
+
+  public fillColumn(columnPosition: ColumnPosition, color: Color): void;
+
+  public fillColumn(
+    columnPosition: ColumnPosition,
+    color: Color,
+    duration: number
+  ): ThreadGenerator;
+
+  public fillColumn(
+    columnPosition: ColumnPosition,
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
+    if (duration == null) {
+      this.fillInRange([columnPosition, 0], [columnPosition, 5], color);
+    } else {
+      return function* (this: LEDSystem) {
+        yield* this.fillInRange(
+          [columnPosition, 0],
+          [columnPosition, 5],
+          color,
+          duration
+        );
+      }.apply(this);
+    }
+  }
+
+  public fillInRange(
+    topLeft: Position,
+    bottomRight: Position,
+    color: Color
+  ): void;
+
+  public fillInRange(
+    topLeft: Position,
+    bottomRight: Position,
+    color: Color,
+    duration: number
+  ): ThreadGenerator;
+
+  public fillInRange(
+    topLeft: Position,
+    bottomRight: Position,
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
+    if (duration == null) {
+      for (const lightID of lightsQuery(topLeft, bottomRight)) {
+        this.fillID(lightID, color);
+      }
+    } else {
+      return function* (this: LEDSystem) {
+        const generators = [];
+        for (const lightID of lightsQuery(topLeft, bottomRight)) {
+          generators.push(this.fillID(lightID, color, duration));
+        }
+        yield* all(...generators);
+      }.apply(this);
+    }
+  }
+
+  public fillAll(color: Color): void;
+
+  public fillAll(color: Color, duration: number): ThreadGenerator;
+
+  public fillAll(
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
+    if (duration == null) {
+      for (const [light] of this.iterate()) {
+        light().fill(color);
+      }
+    } else {
+      return function* (this: LEDSystem) {
+        const generators = [];
+
+        for (const [light] of this.iterate()) {
+          generators.push(light().fill(color, duration));
+        }
+
+        yield* all(...generators);
+      }.apply(this);
     }
   }
 }

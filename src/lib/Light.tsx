@@ -11,7 +11,9 @@ import {
   ColorSignal,
   createEffect,
   createRef,
+  linear,
   SimpleSignal,
+  ThreadGenerator,
 } from "@motion-canvas/core";
 import { LightID } from "./lights-array";
 import LEDExporter from "./LEDExporter";
@@ -53,8 +55,23 @@ export class Light extends Node {
     });
   }
 
-  public fill(color: Color): void {
-    this.circle().fill(color);
-    this.color(color);
+  public fill(color: Color): void;
+  public fill(color: Color, duration: number): ThreadGenerator;
+
+  public fill(
+    color: Color,
+    duration: number | null = null
+  ): void | ThreadGenerator {
+    if (duration == null) {
+      this.circle().fill(color);
+      this.color(color);
+    } else {
+      return function* (this: Light) {
+        for (const step of this.circle().fill(color, duration, linear)) {
+          this.color(this.circle().fill() as Color);
+          yield step;
+        }
+      }.apply(this);
+    }
   }
 }
