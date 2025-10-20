@@ -1,4 +1,8 @@
-import { Plugin, PLUGIN_OPTIONS } from "@motion-canvas/vite-plugin";
+import {
+  Plugin,
+  PLUGIN_OPTIONS,
+  PluginConfig,
+} from "@motion-canvas/vite-plugin";
 import { json } from "body-parser";
 import { IncomingMessage } from "connect";
 import { promises as fs } from "fs";
@@ -9,6 +13,7 @@ interface BodyRequest extends IncomingMessage {
 }
 
 export default function myVitePlugin(): Plugin {
+  let config: PluginConfig;
   return {
     name: "led-server-plugin",
     configureServer(server) {
@@ -19,8 +24,9 @@ export default function myVitePlugin(): Plugin {
           res.end();
           const { projectName, frames } = req.body;
           const sanitizedName = sanitizeProjectName(projectName);
+
           await writeFileSafe(
-            path.join("output", `${sanitizedName}.json`),
+            path.join(config.output, `${sanitizedName}.json`),
             JSON.stringify(frames)
           );
         }
@@ -28,6 +34,9 @@ export default function myVitePlugin(): Plugin {
     },
     [PLUGIN_OPTIONS]: {
       entryPoint: "@/led-plugin/runtime-plugin.ts",
+      async config(value) {
+        config = value;
+      },
     },
   };
 }
