@@ -61,6 +61,8 @@ export default makeProject({
 
 NOTE: the `?scene` on the scene import — this ensures that typescript types the module correctly.
 
+Please also copy the `project.meta` file from the demo-project directory to ensure that the background is black, the size is 1920x1200, and the rendering.fps is 60.
+
 # Creating a New Scene
 
 Either when creating a new project and its first scene or adding a scene to an existing project, a scene should be set up with the following boilerplate. As a best practice, be sure to reset the LEDs to black at the start of the scene (unless they should be on at the start).
