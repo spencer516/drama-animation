@@ -18,8 +18,9 @@ export default function myVitePlugin(): Plugin {
         async (req: BodyRequest, res) => {
           res.end();
           const { projectName, frames } = req.body;
+          const sanitizedName = sanitizeProjectName(projectName);
           await writeFileSafe(
-            path.join("output", `${projectName} [LED].json`),
+            path.join("output", `${sanitizedName}.json`),
             JSON.stringify(frames)
           );
         }
@@ -29,6 +30,14 @@ export default function myVitePlugin(): Plugin {
       entryPoint: "@/led-plugin/runtime-plugin.ts",
     },
   };
+}
+
+function sanitizeProjectName(name: string): string {
+  return name
+    .toLowerCase() // Convert to lowercase
+    .replace(/[^a-z0-9\-]/g, "-") // Replace invalid characters with dash
+    .replace(/-+/g, "-") // Replace multiple consecutive dashes with single dash
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing dashes
 }
 
 async function writeFileSafe(filePath: string, data: string) {

@@ -8,12 +8,12 @@
     ],
     "size": {
       "x": 1920,
-      "y": 1080
+      "y": 1200
     },
     "audioOffset": 0
   },
   "preview": {
-    "fps": 30,
+    "fps": 60,
     "resolutionScale": 1
   },
   "rendering": {
@@ -21,8 +21,11 @@
     "resolutionScale": 1,
     "colorSpace": "srgb",
     "exporter": {
-      "name": "leds-exporter",
-      "options": {}
+      "name": "@motion-canvas/ffmpeg",
+      "options": {
+        "fastStart": true,
+        "includeAudio": true
+      }
     }
   }
 }
