@@ -69,7 +69,7 @@ export class LEDSystem extends Node {
     this.add(<Layout>{lights}</Layout>);
   }
 
-  private *iterate(): Iterable<[Reference<Light>, Coordinates, LightID]> {
+  public *iterate(): Iterable<[Reference<Light>, Coordinates, LightID]> {
     for (const [maybeLightID, { ref, coordinates }] of this.lights) {
       const lightID = maybeLightID as LightID;
       yield [ref, coordinates, lightID];

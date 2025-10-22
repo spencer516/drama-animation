@@ -85,6 +85,8 @@ export default class LEDExporterState {
       });
     }
 
+    const countOn = newFrame.lights.filter(({ color }) => color.num() > 0);
+
     this.frames.push(newFrame);
   }
 
@@ -93,7 +95,7 @@ export default class LEDExporterState {
       const currentFrame: SerializedFrame = {};
 
       let index = 0;
-      for (const [, color] of this.lightState) {
+      for (const { color } of frame.lights) {
         const channel = index * 3;
         const [r, g, b] = color.rgb();
 
