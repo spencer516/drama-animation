@@ -85,10 +85,4 @@ export default makeScene2D(function* (view) {
 
 # Animation Flow
 
-Importantly, as you are composing these animations together, you should rely on the helpers that are provided by the Motion Canvas library. Really good documentation is available here for those at:
-
-- docs/third-party/motion-canvas/getting-started/flow.mdx
-
-And, while the LEDSystem helper functions include ways to auto-animate by passing a duration, if you need to animate them with more control, then use the `tween` method. More details on how to use that is available at:
-
-- docs/third-party/motion-canvas/getting-started/tweening.mdx
+Importantly, as you are composing these animations together, you should rely on the helpers that are provided by the Motion Canvas library. And, while the LEDSystem helper functions include ways to auto-animate by passing a duration, if you need to animate them with more control, then use the `tween` method. More details on how to use that is available at
