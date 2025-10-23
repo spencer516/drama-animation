@@ -52,6 +52,9 @@ export default class LEDExporterState {
   }
 
   private updateLight(lightID: LightID, color: Color) {
+    if (lightID === "L1") {
+      console.log("updating light", color.rgb());
+    }
     this.lightState.set(lightID, color);
   }
 
@@ -84,8 +87,6 @@ export default class LEDExporterState {
         color,
       });
     }
-
-    const countOn = newFrame.lights.filter(({ color }) => color.num() > 0);
 
     this.frames.push(newFrame);
   }
