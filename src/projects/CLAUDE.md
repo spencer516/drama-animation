@@ -1,4 +1,4 @@
-This directory is used for creating new projects and scenes. There's a few things you need to understand before you start writing code.
+This directory is used for creating new projects. There's a few things you need to understand before you start writing code.
 
 Anywhere you see a link to documentation, use the WebFetch tool to follow those links. Be sure you have a deep understanding of those documents before you proceed.
 
