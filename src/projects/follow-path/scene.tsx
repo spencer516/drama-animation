@@ -45,8 +45,8 @@ const TRAIN_PATH = new Color("red");
 const LIGHT_COLOR = new Color("white");
 const BLACK = new Color("black");
 const TRAIN_LENGTH = 80;
-const TRAVEL_SPEED = 0.2;
-const STATION_WAIT_TIME = 0.01;
+const TRAVEL_SPEED = 0.5;
+const STATION_WAIT_TIME = 0.2;
 
 const totalTrainDistance = positionsToDistance(POSITIONS);
 

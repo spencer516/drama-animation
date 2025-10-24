@@ -100,9 +100,9 @@ export default class LEDExporterState {
         const channel = index * 3;
         const [r, g, b] = color.rgb();
 
-        currentFrame[channel] = rgbToChannel(r);
-        currentFrame[channel + 1] = rgbToChannel(g);
-        currentFrame[channel + 2] = rgbToChannel(b);
+        currentFrame[channel + 1] = rgbToChannel(r);
+        currentFrame[channel + 2] = rgbToChannel(g);
+        currentFrame[channel + 3] = rgbToChannel(b);
 
         index++;
       }
