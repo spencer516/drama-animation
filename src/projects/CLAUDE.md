@@ -4,7 +4,7 @@ Anywhere you see a link to documentation, use the WebFetch tool to follow those 
 
 # What is the purpose and goal?
 
-First, this project is software that creates animations for two things: an array of addressable LED lights and a projector that will overlay the LED lights.
+First, this project is software that creates animations for two things: an array of addressable LED lights and a projector that will overlay the LED lights with 2D graphic animations.
 
 When you are asked to create or edit something, the project that I am referring to and can be found in it folder's corresponding `project.tsx` file. It will have a name. The folder the project is in should match the name, but dasherized.
 
@@ -12,7 +12,7 @@ Each project has a collection of scenes — a scene should be thought of as a d
 
 # How does the code work?
 
-This project uses the open source library "Motion Canvas" — the complete documentation for this library is available here starting at docs/third-party/motion-canvas/
+This project uses the open source library "Motion Canvas" — the complete documentation for this library is available here starting at docs/third-party/motion-canvas/intro.md
 
 When you are trying to figure out how to implement a feature, search the documentation first to understand what is possible.
 
@@ -20,7 +20,7 @@ If you want to see what APIs are available, you can use the Typescript type defi
 
 Beyond the third party documentation, this project has a few specific behaviors:
 
-First, this project has a way to distinguish whether the animation applies to the LED lights or the projector.
+First, this project has a way to distinguish whether the animation applies to the LED lights or 2D graphics on the projector.
 
 Given that, every scene should start with this snippet:
 
@@ -40,49 +40,26 @@ When not operating the LED lights and making animations for the projector, there
 - `positionToRect([3,2], 2, 2)`: This would generate the x, y, width and height that could be applied to a <Rect /> so that it fits into the grid system.
 - `positionsToCoordinates`: this can be used to get a series of [x, y] tuples for use with a <Line />, that follows the grid system
 
-In general, you should create animations that adhere to the grid system; if it shouldn't, I will tell you explicitly.
+If you are planning to animate the lights, then you will always use the `ledSystem()`. But, you can also create animations outside of the `ledSystem()` — you can add those directly to the provided `screen`.
+
+For example, to add a line, you can do:
+
+```
+screen().add(
+  <Line ... />
+);
+```
+
+...and this would result in a line on the projector.
 
 When you are making these animations, you should NOT rely on any time methods (like Date.now() or performance.now()) — these animations do not run in real time! Instead, you should use things like waitFor or use transition durations. In other words, use the motion canvas framework!
 
 # Creating a New Project
 
-When you create a new project, you should create a new folder in `src/projects` using a dasherized name. Each project should have at least one scene initially, so you can create that, too, with a dasherized name that describes it succinctly. The project file should be simple and give it a name and attach the scene. For example, a basic project would look like this:
+When you create a new project, you should copy the folder and its contents `src/projects/template-project` and give the new folder a dasherized name. Then, update the name of hte project in `project.ts`.
 
-```
-// src/projects/foo-project/project.ts
-import { makeProject } from "@motion-canvas/core";
-import barScene from './bar-scene.tsx?scene';
+This contains everything you need to bootstrap a new project; your job is to update the corresponding `scene.tsx` file.
 
-export default makeProject({
-  name: "Foo Project",
-  scenes: [barScene],
-});
-```
+# Examples
 
-NOTE: the `?scene` on the scene import — this ensures that typescript types the module correctly.
-
-Please also copy the `project.meta` file from the demo-project directory to ensure that the background is black, the size is 1920x1200, and the rendering.fps is 60.
-
-# Creating a New Scene
-
-Either when creating a new project and its first scene or adding a scene to an existing project, a scene should be set up with the following boilerplate. As a best practice, be sure to reset the LEDs to black at the start of the scene (unless they should be on at the start).
-
-```
-import { makeScene2D } from "@motion-canvas/2d";
-import { Color } from "@motion-canvas/core";
-import { setupLEDScene } from "@/lib/LEDSystem";
-
-export default makeScene2D(function* (view) {
-  const { screen, ledSystem } = setupLEDScene(view);
-
-  ledSystem().fillAll(new Color('black'));
-
-  // ledSystem() <— do something with the LEDs
-
-  // screen().add(...) <— add content to the Screen
-});
-```
-
-# Animation Flow
-
-Importantly, as you are composing these animations together, you should rely on the helpers that are provided by the Motion Canvas library. And, while the LEDSystem helper functions include ways to auto-animate by passing a duration, if you need to animate them with more control, then use the `tween` method. More details on how to use that is available at
+Please look through the other `scene.tsx` files if you would like to see some additional examples of how to use the library.

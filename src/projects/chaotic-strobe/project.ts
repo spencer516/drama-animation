@@ -1,7 +1,7 @@
 import { makeProject } from "@motion-canvas/core";
-import chaoticStrobeScene from './chaotic-strobe-scene?scene';
+import scene from "./scene?scene";
 
 export default makeProject({
   name: "Chaotic Strobe",
-  scenes: [chaoticStrobeScene],
+  scenes: [scene],
 });

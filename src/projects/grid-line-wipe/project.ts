@@ -1,7 +1,7 @@
 import { makeProject } from "@motion-canvas/core";
-import gridLineWipeScene from './grid-line-wipe-scene?scene';
+import scene from "./scene?scene";
 
 export default makeProject({
   name: "Grid Line Wipe",
-  scenes: [gridLineWipeScene],
+  scenes: [scene],
 });

@@ -2,6 +2,6 @@ import { makeProject } from "@motion-canvas/core";
 import scene from "./scene?scene";
 
 export default makeProject({
-  name: "Demo Project",
+  name: "Wipe Left-to-Right Project",
   scenes: [scene],
 });
