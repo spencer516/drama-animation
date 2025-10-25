@@ -1,10 +1,12 @@
-import { Layout, Node, NodeProps, Rect, View2D } from "@motion-canvas/2d";
+import { Layout, Line, Node, NodeProps, Rect, View2D } from "@motion-canvas/2d";
 import { LightID, LightsArray } from "./lights-array";
 import {
   all,
   Color,
   createRef,
+  createRefArray,
   Reference,
+  ReferenceArray,
   ThreadGenerator,
 } from "@motion-canvas/core";
 import { Light } from "./Light";
@@ -14,9 +16,11 @@ import {
   Position,
   positionToCoordinates,
   RowPosition,
+  sequenceColumns,
+  sequenceRows,
 } from "./wall-coordinate-system";
 import lightsQuery from "./lights-query";
-import { LED_OFF } from "./design-system";
+import { GRID_BLACK, GRID_LINE_WIDTH, LED_OFF } from "./design-system";
 
 export interface LEDSystemProps extends NodeProps {}
 
@@ -42,6 +46,73 @@ export function setupLEDScene(view: View2D): {
   ledSystem().fillAll(LED_OFF);
 
   return { ledSystem, screen };
+}
+
+type GridColors = {
+  ledColor: Color;
+  gridColor: Color;
+};
+
+export function createFilledGrid(
+  ledSystem: Reference<LEDSystem>,
+  screen: Reference<Rect>
+): {
+  horizontalLines: ReferenceArray<Line>;
+  verticalLines: ReferenceArray<Line>;
+  fill: (c: GridColors) => void;
+  fillAnimated: (c: GridColors, d: number) => ThreadGenerator;
+} {
+  const horizontalLines = createRefArray<Line>();
+  const verticalLines = createRefArray<Line>();
+
+  screen().add([
+    ...sequenceColumns().map((column) => (
+      <Line
+        ref={verticalLines}
+        points={[
+          positionToCoordinates([column, 0]),
+          positionToCoordinates([column, 5]),
+        ]}
+        lineWidth={GRID_LINE_WIDTH}
+        stroke={GRID_BLACK}
+      />
+    )),
+    ...sequenceRows().map((row) => (
+      <Line
+        ref={verticalLines}
+        points={[
+          positionToCoordinates([0, row]),
+          positionToCoordinates([15, row]),
+        ]}
+        lineWidth={GRID_LINE_WIDTH}
+        stroke={GRID_BLACK}
+      />
+    )),
+  ]);
+
+  function fill({ ledColor, gridColor }: GridColors) {
+    ledSystem().fillAll(ledColor);
+    horizontalLines.map((line) => line.stroke(gridColor));
+    verticalLines.map((line) => line.stroke(gridColor));
+  }
+
+  function* fillAnimated(
+    { ledColor, gridColor }: GridColors,
+    duration: number
+  ) {
+    yield* all(
+      ledSystem().fillAll(ledColor, duration),
+      ...horizontalLines.map((line) => line.stroke(gridColor, duration)),
+      ...verticalLines.map((line) => line.stroke(gridColor, duration))
+    );
+  }
+
+  return {
+    verticalLines,
+    horizontalLines,
+    fill,
+    fillAnimated,
+  };
 }
 
 export class LEDSystem extends Node {
