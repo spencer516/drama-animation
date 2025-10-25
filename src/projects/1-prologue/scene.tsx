@@ -13,6 +13,7 @@ import {
   all,
   Random,
   createRef,
+  delay,
 } from "@motion-canvas/core";
 import {
   sequenceRows,
@@ -52,6 +53,14 @@ const ZYGOTE_POSITION: Position = [12, 4]; // Bottom-right position
 
 // At Conception Params
 const CONCEPTION_MOMENT_DURATION = 0.4;
+
+// Lightning Branching Effect Parameters
+const LIGHTNING_TOTAL_DURATION = 15; // Total time for grid to fill
+const LIGHTNING_BRANCH_INTERVAL = 0.25; // Time between spawning new branches
+const LIGHTNING_LINE_DURATION = 0.6; // How long each line segment takes to draw
+const LIGHTNING_BRANCH_PROBABILITY = 0.25; // Chance for a point to branch in multiple directions
+const LIGHTNING_MAX_BRANCHES_PER_POINT = 2; // Max simultaneous branches from one point
+const LIGHTNING_BRANCHES_PER_INTERVAL = 2; // Max branches to spawn per interval
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
@@ -309,11 +318,211 @@ export default makeScene2D(function* (view) {
   // Phase 3: Contact ... the grid starts to fill in like lightning exploring the lines :17 - :32
   // First the horizontal and vertical explode out from it; then the others start to fill in
 
+  // HERE CLAUDE!
+
+  // Track which positions already have lights on and which line segments exist
+  const activeLights = new Set<string>();
+  const activeLineSegments = new Set<string>();
+
+  // Helper to create a position key
+  const lightKey = (pos: Position): string => `${pos[0]},${pos[1]}`;
+
+  // Helper to create a line segment key (normalized so direction doesn't matter)
+  const lineKey = (from: Position, to: Position): string => {
+    const [x1, y1] = from;
+    const [x2, y2] = to;
+    return x1 < x2 || (x1 === x2 && y1 < y2)
+      ? `${x1},${y1}-${x2},${y2}`
+      : `${x2},${y2}-${x1},${y1}`;
+  };
+
+  // Initialize with the already-visible cross pattern
+  // Add all lights in the zygote column and row
+  for (let row = 0; row <= 5; row++) {
+    activeLights.add(lightKey([ZYGOTE_POSITION[0], row as RowPosition]));
+  }
+  for (let col = 0; col <= 15; col++) {
+    activeLights.add(lightKey([col as ColumnPosition, ZYGOTE_POSITION[1]]));
+  }
+
+  // Add all line segments in the cross pattern
+  for (let row = 0; row < 5; row++) {
+    const from: Position = [ZYGOTE_POSITION[0], row as RowPosition];
+    const to: Position = [ZYGOTE_POSITION[0], (row + 1) as RowPosition];
+    activeLineSegments.add(lineKey(from, to));
+  }
+  for (let col = 0; col < 15; col++) {
+    const from: Position = [col as ColumnPosition, ZYGOTE_POSITION[1]];
+    const to: Position = [(col + 1) as ColumnPosition, ZYGOTE_POSITION[1]];
+    activeLineSegments.add(lineKey(from, to));
+  }
+
+  // Track frontier: positions that can spawn new branches
+  const frontier: Position[] = [];
+
+  // Add all positions from the cross to the frontier
+  for (let row = 0; row <= 5; row++) {
+    frontier.push([ZYGOTE_POSITION[0], row as RowPosition]);
+  }
+  for (let col = 0; col <= 15; col++) {
+    if (col !== ZYGOTE_POSITION[0]) {
+      frontier.push([col as ColumnPosition, ZYGOTE_POSITION[1]]);
+    }
+  }
+
+  // Helper to get neighboring positions (up, down, left, right)
+  const getNeighbors = (pos: Position): Position[] => {
+    const [col, row] = pos;
+    const neighbors: Position[] = [];
+
+    if (col > 0) neighbors.push([(col - 1) as ColumnPosition, row]);
+    if (col < 15) neighbors.push([(col + 1) as ColumnPosition, row]);
+    if (row > 0) neighbors.push([col, (row - 1) as RowPosition]);
+    if (row < 5) neighbors.push([col, (row + 1) as RowPosition]);
+
+    return neighbors;
+  };
+
+  // Helper to draw a line and fade in a light
+  function* drawLightningBranch(from: Position, to: Position) {
+    const fromCoords = positionToCoordinates(from);
+    const toCoords = positionToCoordinates(to);
+    const linePoints = [fromCoords, toCoords];
+    const lineLength = coordinatesToDistance(linePoints);
+
+    const branchLineRef = createRef<Line>();
+
+    screen().add(
+      <Line
+        ref={branchLineRef}
+        points={linePoints}
+        stroke={GRID_WHITE}
+        lineWidth={GRID_LINE_WIDTH}
+        endOffset={lineLength}
+        lineCap="round"
+      />
+    );
+
+    const toLight = ledSystem().lightRefAt(to);
+
+    // Animate line drawing and light fading in simultaneously
+    yield* all(
+      branchLineRef().endOffset(0, LIGHTNING_LINE_DURATION),
+      toLight().fill(LED_ON, LIGHTNING_LINE_DURATION)
+    );
+  }
+
+  // Main lightning branching loop
+  const startTime = Date.now();
+  while (activeLights.size < 96) {
+    // 16 columns * 6 rows = 96 total positions
+    // Check if we've exceeded our time budget
+    const elapsed = (Date.now() - startTime) / 1000;
+    if (elapsed > LIGHTNING_TOTAL_DURATION) {
+      break;
+    }
+
+    // Shuffle the frontier to add randomness
+    const shuffledFrontier = [...frontier].sort(() =>
+      randomGenerator.nextFloat(-1, 1)
+    );
+
+    let branchesSpawned = 0;
+
+    for (const fromPos of shuffledFrontier) {
+      // Get all unlit neighbors
+      const neighbors = getNeighbors(fromPos);
+      const unlitNeighbors = neighbors.filter(
+        (n) => !activeLights.has(lightKey(n))
+      );
+
+      if (unlitNeighbors.length === 0) continue;
+
+      // Decide how many branches to spawn from this point
+      const shouldBranch =
+        randomGenerator.nextFloat(0, 1) < LIGHTNING_BRANCH_PROBABILITY;
+      const maxBranches = shouldBranch
+        ? Math.min(LIGHTNING_MAX_BRANCHES_PER_POINT, unlitNeighbors.length)
+        : 1;
+
+      const numBranches = randomGenerator.nextInt(1, maxBranches + 1);
+
+      // Spawn branches
+      for (let i = 0; i < numBranches && i < unlitNeighbors.length; i++) {
+        const toPos = unlitNeighbors[i];
+        const segmentKey = lineKey(fromPos, toPos);
+
+        // Skip if this line segment already exists
+        if (activeLineSegments.has(segmentKey)) continue;
+
+        // Mark as active
+        activeLights.add(lightKey(toPos));
+        activeLineSegments.add(segmentKey);
+        frontier.push(toPos);
+
+        // Spawn the branch animation
+        spawn(drawLightningBranch(fromPos, toPos));
+
+        branchesSpawned++;
+      }
+
+      // Limit how many branches we spawn per interval
+      if (branchesSpawned >= LIGHTNING_BRANCHES_PER_INTERVAL) break;
+    }
+
+    yield* waitFor(LIGHTNING_BRANCH_INTERVAL);
+  }
+
+  // Fill in any remaining line segments between lit lights
+  // This ensures every adjacent pair of lights has a connecting line
+  const missingSegments: [Position, Position][] = [];
+
+  for (let col = 0; col <= 15; col++) {
+    for (let row = 0; row <= 5; row++) {
+      const pos: Position = [col as ColumnPosition, row as RowPosition];
+
+      // Check horizontal connection to the right
+      if (col < 15) {
+        const rightPos: Position = [
+          (col + 1) as ColumnPosition,
+          row as RowPosition,
+        ];
+        const segmentKey = lineKey(pos, rightPos);
+        if (!activeLineSegments.has(segmentKey)) {
+          missingSegments.push([pos, rightPos]);
+          activeLineSegments.add(segmentKey);
+        }
+      }
+
+      // Check vertical connection down
+      if (row < 5) {
+        const downPos: Position = [
+          col as ColumnPosition,
+          (row + 1) as RowPosition,
+        ];
+        const segmentKey = lineKey(pos, downPos);
+        if (!activeLineSegments.has(segmentKey)) {
+          missingSegments.push([pos, downPos]);
+          activeLineSegments.add(segmentKey);
+        }
+      }
+    }
+  }
+
+  spawn(
+    all(
+      ...missingSegments.map(([from, to]) =>
+        delay(randomGenerator.nextFloat(0, 6), drawLightningBranch(from, to))
+      )
+    )
+  );
+
   // Phase 4: Complete chaos with an upwards direction :32 - :40
+  yield* waitUntil("chaos");
 
   // Phase 5: Cut to Blue
 
-  yield* waitFor(10);
+  yield* waitFor(20);
 });
 
 // Track all swarm lights with their positions
