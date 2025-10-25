@@ -14,7 +14,7 @@ import { sequenceRows } from "@/lib/wall-coordinate-system";
 import { LED_ON } from "@/lib/colors";
 
 const ZYGOTE_FADE_IN = 0.8;
-const ZYGOTE_PULSE_SPEED = 0.5;
+const ZYGOTE_PULSE_SPEED = 0.8;
 const ZYGODE_FADED_COLOR = LED_ON.darken(3);
 
 export default makeScene2D(function* (view) {
@@ -36,7 +36,8 @@ export default makeScene2D(function* (view) {
 
   yield* waitUntil("swarm-begins");
 
-  // spawner.return();
+  zygoteLight().fill(LED_ON);
+  spawner.return();
 
   // yield* loopUntil("swarm-begins", () =>
   //   chain(
