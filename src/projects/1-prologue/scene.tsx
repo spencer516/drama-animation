@@ -512,17 +512,13 @@ export default makeScene2D(function* (view) {
   spawn(
     all(
       ...missingSegments.map(([from, to]) =>
-        delay(randomGenerator.nextFloat(0, 6), drawLightningBranch(from, to))
+        delay(randomGenerator.nextFloat(0, 5.5), drawLightningBranch(from, to))
       )
     )
   );
 
   // Phase 4: Complete chaos with an upwards direction :32 - :40
   yield* waitUntil("chaos");
-
-  // Phase 5: Cut to Blue
-
-  yield* waitFor(20);
 });
 
 // Track all swarm lights with their positions
