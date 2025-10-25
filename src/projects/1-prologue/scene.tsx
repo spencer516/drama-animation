@@ -39,14 +39,9 @@ export default makeScene2D(function* (view) {
   zygoteLight().fill(LED_ON);
   spawner.return();
 
-  // yield* loopUntil("swarm-begins", () =>
-  //   chain(
-  //     zygoteLight().fill(ZYGODE_FADED_COLOR, ZYGOTE_PULSE_SPEED),
-  //     zygoteLight().fill(LED_ON, ZYGOTE_PULSE_SPEED)
-  //   )
-  // );
-
   // Phase 2: Other lights start swirling toward the one light :05 - :17
+
+  yield* waitUntil("contact");
 
   // Phase 3: Contact ... the grid starts to fill in like lightning exploring the lines :17 - :32
   // First the horizontal and vertical explode out from it; then the others start to fill in

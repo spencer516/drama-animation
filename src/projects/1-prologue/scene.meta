@@ -3,7 +3,11 @@
   "timeEvents": [
     {
       "name": "swarm-begins",
-      "targetTime": 3.4187717013888905
+      "targetTime": 7.955230034722231
+    },
+    {
+      "name": "contact",
+      "targetTime": 16.6650390625
     }
   ],
   "seed": 644320456
