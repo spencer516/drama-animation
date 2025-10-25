@@ -1,10 +1,20 @@
 import { makeScene2D } from "@motion-canvas/2d";
-import { setupLEDScene } from "@/lib/LEDSystem";
-import { Color, sequence, waitFor } from "@motion-canvas/core";
-import { sequenceRows } from "@/lib/wall-coordinate-system";
+import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
+import { waitFor } from "@motion-canvas/core";
+import { GRID_BLUE, LED_BLUE } from "@/lib/design-system";
 
 export default makeScene2D(function* (view) {
-  const { ledSystem } = setupLEDScene(view);
+  const { ledSystem, screen } = setupLEDScene(view);
 
-  ledSystem().fillAll(new Color("black"));
+  const { fill, horizontalLines, verticalLines } = createFilledGrid(
+    ledSystem,
+    screen
+  );
+
+  fill({
+    ledColor: LED_BLUE,
+    gridColor: GRID_BLUE,
+  });
+
+  yield* waitFor(10);
 });
