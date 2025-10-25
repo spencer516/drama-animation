@@ -35,19 +35,23 @@ export function positionToCoordinates([column, row]: Position): Coordinates {
 }
 
 export function positionsToDistance(positions: Position[]): number {
-  if (positions.length < 2) {
+  return coordinatesToDistance(positions.map(positionToCoordinates));
+}
+
+export function coordinatesToDistance(coordinates: Coordinates[]) {
+  if (coordinates.length < 2) {
     return 0;
   }
 
-  const [firstPosition, ...rest] = positions;
+  const [firstCoordinates, ...rest] = coordinates;
 
-  let [lastX, lastY] = positionToCoordinates(firstPosition);
+  let [lastX, lastY] = firstCoordinates;
   let totalDistance = 0;
 
-  for (const nextPosition of rest) {
-    const [nextX, nextY] = positionToCoordinates(nextPosition);
+  for (const [nextX, nextY] of rest) {
     const width = nextX - lastX;
     const height = nextY - lastY;
+
     totalDistance += Math.sqrt(width ** 2 + height ** 2);
 
     [lastX, lastY] = [nextX, nextY];

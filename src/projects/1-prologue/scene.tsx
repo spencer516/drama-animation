@@ -1,4 +1,4 @@
-import { makeScene2D } from "@motion-canvas/2d";
+import { Line, makeScene2D } from "@motion-canvas/2d";
 import { setupLEDScene } from "@/lib/LEDSystem";
 import {
   chain,
@@ -12,14 +12,23 @@ import {
   useRandom,
   all,
   Random,
+  createRef,
 } from "@motion-canvas/core";
 import {
   sequenceRows,
   Position,
   ColumnPosition,
   RowPosition,
+  positionToCoordinates,
+  positionsToDistance,
+  coordinatesToDistance,
 } from "@/lib/wall-coordinate-system";
-import { LED_ON, LED_OFF } from "@/lib/colors";
+import {
+  LED_ON,
+  LED_OFF,
+  GRID_WHITE,
+  GRID_LINE_WIDTH,
+} from "@/lib/design-system";
 import { Reference } from "@motion-canvas/core";
 import { Light } from "@/lib/Light";
 
@@ -41,8 +50,11 @@ const SWARM_SPAWN_REGION: [Position, Position] = [
 ]; // Top-left region
 const ZYGOTE_POSITION: Position = [12, 4]; // Bottom-right position
 
+// At Conception Params
+const CONCEPTION_MOMENT_DURATION = 0.4;
+
 export default makeScene2D(function* (view) {
-  const { ledSystem } = setupLEDScene(view);
+  const { ledSystem, screen } = setupLEDScene(view);
   const randomGenerator = useRandom();
 
   const zygoteLight = ledSystem().lightRefAt(ZYGOTE_POSITION);
@@ -181,14 +193,112 @@ export default makeScene2D(function* (view) {
     swarmLight.flickerTask.return();
   }
 
+  const upperVLineRef = createRef<Line>();
+  const lowerVLineRef = createRef<Line>();
+  const leftHLineRef = createRef<Line>();
+  const rightHLineRef = createRef<Line>();
+
+  const zygoteCoordinates = positionToCoordinates(ZYGOTE_POSITION);
+
+  const upperVLinePoints = [
+    zygoteCoordinates,
+    positionToCoordinates([ZYGOTE_POSITION[0], 0]),
+  ];
+
+  const upperVLineLength = coordinatesToDistance(upperVLinePoints);
+
+  const lowerVLinePoints = [
+    zygoteCoordinates,
+    positionToCoordinates([ZYGOTE_POSITION[0], 5]),
+  ];
+
+  const lowerVLineLength = coordinatesToDistance(lowerVLinePoints);
+
+  const leftHLinePoints = [
+    zygoteCoordinates,
+    positionToCoordinates([0, ZYGOTE_POSITION[1]]),
+  ];
+
+  const leftHLineLength = coordinatesToDistance(leftHLinePoints);
+
+  const rightHLinePoints = [
+    zygoteCoordinates,
+    positionToCoordinates([15, ZYGOTE_POSITION[1]]),
+  ];
+
+  const rightHLineLength = coordinatesToDistance(rightHLinePoints);
+
+  // Add the vertical/horizontal explosion lines
+  screen().add(
+    <>
+      <Line
+        ref={upperVLineRef}
+        points={upperVLinePoints}
+        stroke={GRID_WHITE}
+        lineWidth={GRID_LINE_WIDTH}
+        endOffset={upperVLineLength}
+        lineCap="round"
+      />
+      <Line
+        ref={lowerVLineRef}
+        points={lowerVLinePoints}
+        stroke={GRID_WHITE}
+        lineWidth={GRID_LINE_WIDTH}
+        endOffset={lowerVLineLength}
+        lineCap="round"
+      />
+      <Line
+        ref={leftHLineRef}
+        points={leftHLinePoints}
+        stroke={GRID_WHITE}
+        lineWidth={GRID_LINE_WIDTH}
+        endOffset={leftHLineLength}
+        lineCap="round"
+      />
+      <Line
+        ref={rightHLineRef}
+        points={rightHLinePoints}
+        stroke={GRID_WHITE}
+        lineWidth={GRID_LINE_WIDTH}
+        endOffset={rightHLineLength}
+        lineCap="round"
+      />
+    </>
+  );
+
+  const maxLineLength = Math.max(
+    upperVLineLength,
+    lowerVLineLength,
+    leftHLineLength,
+    rightHLineLength
+  );
+
   yield* all(
-    ...swarmLights.map((swarmLight) => swarmLight.lightRef().fill(LED_OFF, 0.5))
+    ...swarmLights.map((swarmLight) =>
+      swarmLight.lightRef().fill(LED_OFF, CONCEPTION_MOMENT_DURATION * 1.4)
+    ),
+    upperVLineRef().endOffset(
+      upperVLineLength - maxLineLength,
+      CONCEPTION_MOMENT_DURATION
+    ),
+    lowerVLineRef().endOffset(
+      lowerVLineLength - maxLineLength,
+      CONCEPTION_MOMENT_DURATION
+    ),
+    leftHLineRef().endOffset(
+      leftHLineLength - maxLineLength,
+      CONCEPTION_MOMENT_DURATION
+    ),
+    rightHLineRef().endOffset(
+      rightHLineLength - maxLineLength,
+      CONCEPTION_MOMENT_DURATION
+    )
   );
 
   // Phase 3: Contact ... the grid starts to fill in like lightning exploring the lines :17 - :32
   // First the horizontal and vertical explode out from it; then the others start to fill in
 
-  // Phase 4: Complete chaos with an upwards driection :32 - :40
+  // Phase 4: Complete chaos with an upwards direction :32 - :40
 
   // Phase 5: Cut to Blue
 

@@ -16,7 +16,7 @@ import {
   RowPosition,
 } from "./wall-coordinate-system";
 import lightsQuery from "./lights-query";
-import { LED_OFF } from "./colors";
+import { LED_OFF } from "./design-system";
 
 export interface LEDSystemProps extends NodeProps {}
 
