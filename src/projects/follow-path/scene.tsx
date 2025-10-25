@@ -95,6 +95,8 @@ export default makeScene2D(function* (view) {
       waitFor(STATION_WAIT_TIME * 2),
       ledSystem().fillAt(position, BLACK, STATION_WAIT_TIME)
     );
+
+    ledSystem().fillAt(position, BLACK);
   }
 
   yield* trainPathRef().startOffset(totalTrainDistance, TRAVEL_SPEED);

@@ -16,6 +16,7 @@ import {
   RowPosition,
 } from "./wall-coordinate-system";
 import lightsQuery from "./lights-query";
+import { LED_OFF } from "./colors";
 
 export interface LEDSystemProps extends NodeProps {}
 
@@ -37,6 +38,8 @@ export function setupLEDScene(view: View2D): {
       <LEDSystem ref={ledSystem} />
     </>
   );
+
+  ledSystem().fillAll(LED_OFF);
 
   return { ledSystem, screen };
 }
@@ -74,6 +77,11 @@ export class LEDSystem extends Node {
       const lightID = maybeLightID as LightID;
       yield [ref, coordinates, lightID];
     }
+  }
+
+  public lightRefAt(position: Position): Reference<Light> {
+    const lightID = lightsQuery(position).at(0);
+    return this.lights.get(lightID).ref;
   }
 
   public fillID(lightID: LightID, color: Color): void;
