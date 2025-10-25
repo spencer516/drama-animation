@@ -34,7 +34,7 @@ import { Light } from "@/lib/Light";
 
 // Zygote (initial light) parameters
 const ZYGOTE_FADE_IN = 0.8;
-const ZYGOTE_PULSE_SPEED = 0.8;
+const ZYGOTE_PULSE_SPEED = 1.1;
 const ZYGODE_FADED_COLOR = LED_ON.darken(3);
 
 // Swarm parameters
@@ -273,10 +273,11 @@ export default makeScene2D(function* (view) {
     rightHLineLength
   );
 
+  for (const swarmLight of swarmLights) {
+    swarmLight.lightRef().fill(LED_OFF);
+  }
+
   yield* all(
-    ...swarmLights.map((swarmLight) =>
-      swarmLight.lightRef().fill(LED_OFF, CONCEPTION_MOMENT_DURATION * 1.4)
-    ),
     upperVLineRef().endOffset(
       upperVLineLength - maxLineLength,
       CONCEPTION_MOMENT_DURATION
@@ -292,6 +293,16 @@ export default makeScene2D(function* (view) {
     rightHLineRef().endOffset(
       rightHLineLength - maxLineLength,
       CONCEPTION_MOMENT_DURATION
+    ),
+    ledSystem().fillColumn(
+      ZYGOTE_POSITION[0],
+      LED_ON,
+      CONCEPTION_MOMENT_DURATION * 0.6
+    ),
+    ledSystem().fillRow(
+      ZYGOTE_POSITION[1],
+      LED_ON,
+      CONCEPTION_MOMENT_DURATION * 0.6
     )
   );
 
