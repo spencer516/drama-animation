@@ -64,12 +64,23 @@ export default makeScene2D(function* (view) {
   // Phase 2: Other lights start swirling toward the one light :05 - :17
 
   const swarmLights: SwarmLight[] = [];
+  // Track occupied positions: key is "col,row", value is the swarm light at that position
+  const occupiedPositions = new Map<string, SwarmLight>();
+
+  const positionKey = (pos: Position): string => `${pos[0]},${pos[1]}`;
 
   // Generation phase: spawn lights gradually
   const generationTask = spawn(function* () {
     for (let gen = 0; gen < SWARM_MAX_GENERATIONS; gen++) {
       for (let i = 0; i < SWARM_LIGHTS_PER_GENERATION; i++) {
         const position = getRandomSpawnPosition(randomGenerator);
+        const posKey = positionKey(position);
+
+        // Skip if position is already occupied
+        if (occupiedPositions.has(posKey)) {
+          continue;
+        }
+
         const lightRef = ledSystem().lightRefAt(position);
 
         const swarmLight: SwarmLight = {
@@ -80,6 +91,7 @@ export default makeScene2D(function* (view) {
         // Start flickering
         swarmLight.flickerTask = spawn(flickerLight(lightRef, randomGenerator));
         swarmLights.push(swarmLight);
+        occupiedPositions.set(posKey, swarmLight);
       }
 
       yield* waitFor(SWARM_GENERATION_INTERVAL);
@@ -91,7 +103,9 @@ export default makeScene2D(function* (view) {
 
   const movementTask = spawn(function* () {
     while (true) {
-      for (const swarmLight of swarmLights) {
+      // Iterate through a copy since we might remove items
+      for (let i = swarmLights.length - 1; i >= 0; i--) {
+        const swarmLight = swarmLights[i];
         const distance = distanceToZygote(swarmLight.currentPosition);
 
         // Only move if not at zygote yet
@@ -106,15 +120,41 @@ export default makeScene2D(function* (view) {
             newPosition[0] !== swarmLight.currentPosition[0] ||
             newPosition[1] !== swarmLight.currentPosition[1]
           ) {
+            const oldPosKey = positionKey(swarmLight.currentPosition);
+            const newPosKey = positionKey(newPosition);
+
+            // Check if new position is already occupied
+            if (occupiedPositions.has(newPosKey)) {
+              // Position is occupied, terminate this swarm light
+              if (swarmLight.flickerTask) {
+                swarmLight.flickerTask.return();
+              }
+              // Turn off the light
+              swarmLight.lightRef().fill(LED_OFF);
+              // Remove from tracking
+              occupiedPositions.delete(oldPosKey);
+              swarmLights.splice(i, 1);
+              continue;
+            }
+
             // Stop flickering at old position
             if (swarmLight.flickerTask) {
               swarmLight.flickerTask.return();
             }
 
+            // Update position tracking
+            occupiedPositions.delete(oldPosKey);
+
+            // Turn off the old light
+            swarmLight.lightRef().fill(LED_OFF);
+
             // Get new light reference
             const newLightRef = ledSystem().lightRefAt(newPosition);
             swarmLight.currentPosition = newPosition;
             swarmLight.lightRef = newLightRef;
+
+            // Register new position
+            occupiedPositions.set(newPosKey, swarmLight);
 
             // Start flickering at new position
             swarmLight.flickerTask = spawn(
