@@ -34,17 +34,18 @@ import { Reference } from "@motion-canvas/core";
 import { Light } from "@/lib/Light";
 
 // Zygote (initial light) parameters
-const ZYGOTE_FADE_IN = 0.8;
-const ZYGOTE_PULSE_SPEED = 1.1;
+const ZYGOTE_FADE_IN = 0.49;
+// const ZYGOTE_PULSE_SPEED = 1.1;
+const ZYGOTE_PULSE_SPEED = 0.49;
 const ZYGODE_FADED_COLOR = LED_ON.darken(3);
 
 // Swarm parameters
-const SWARM_GENERATION_INTERVAL = 0.5; // Time between generating new swarm lights
+const SWARM_GENERATION_INTERVAL = 0.3; // Time between generating new swarm lights
 const SWARM_MAX_GENERATIONS = 30;
 const SWARM_FLICKER_MIN_DURATION = 0.1; // Min time for lights to appear/disappear
 const SWARM_FLICKER_MAX_DURATION = 0.3; // Max time for lights to appear/disappear
-const SWARM_LIGHTS_PER_GENERATION = 2; // Number of lights to spawn each generation
-const SWARM_MOVEMENT_DURATION = 1; // How long each "movement step" takes
+const SWARM_LIGHTS_PER_GENERATION = 6; // Number of lights to spawn each generation
+const SWARM_MOVEMENT_DURATION = 0.4; // How long each "movement step" takes
 const SWARM_SPAWN_REGION: [Position, Position] = [
   [0, 0],
   [5, 2],
@@ -122,6 +123,50 @@ export default makeScene2D(function* (view) {
   // Movement phase: gradually move lights towards zygote
   yield* waitFor(1.0); // Let some lights spawn first
 
+  // Helper to find nearest available position within maxDistance
+  const findNearestAvailable = (
+    position: Position,
+    maxDistance: number
+  ): Position | null => {
+    // Search in expanding rings from the position
+    for (let dist = 1; dist <= maxDistance; dist++) {
+      const candidates: Position[] = [];
+
+      // Check all positions within the current distance
+      for (let dx = -dist; dx <= dist; dx++) {
+        for (let dy = -dist; dy <= dist; dy++) {
+          // Only check positions at exactly the current distance (manhattan distance)
+          if (Math.abs(dx) + Math.abs(dy) !== dist) continue;
+
+          const newCol = position[0] + dx;
+          const newRow = position[1] + dy;
+
+          // Skip invalid positions
+          if (newCol < 0 || newCol > 15 || newRow < 0 || newRow > 5) continue;
+
+          const candidatePos: Position = [newCol as ColumnPosition, newRow as RowPosition];
+          const candidateKey = positionKey(candidatePos);
+
+          // Check if position is available
+          if (!occupiedPositions.has(candidateKey)) {
+            candidates.push(candidatePos);
+          }
+        }
+      }
+
+      // If we found candidates at this distance, pick the one closest to zygote
+      if (candidates.length > 0) {
+        return candidates.reduce((closest, current) => {
+          return distanceToZygote(current) < distanceToZygote(closest)
+            ? current
+            : closest;
+        });
+      }
+    }
+
+    return null;
+  };
+
   const movementTask = spawn(function* () {
     while (true) {
       // Iterate through a copy since we might remove items
@@ -146,15 +191,47 @@ export default makeScene2D(function* (view) {
 
             // Check if new position is already occupied
             if (occupiedPositions.has(newPosKey)) {
-              // Position is occupied, terminate this swarm light
-              if (swarmLight.flickerTask) {
-                swarmLight.flickerTask.return();
+              // Position is occupied, find nearest available position within 3 steps
+              const alternativePosition = findNearestAvailable(newPosition, 3);
+
+              if (alternativePosition) {
+                // Found an alternative, use it instead
+                const altPosKey = positionKey(alternativePosition);
+
+                // Stop flickering at old position
+                if (swarmLight.flickerTask) {
+                  swarmLight.flickerTask.return();
+                }
+
+                // Update position tracking
+                occupiedPositions.delete(oldPosKey);
+
+                // Turn off the old light
+                swarmLight.lightRef().fill(LED_OFF);
+
+                // Get new light reference at alternative position
+                const newLightRef = ledSystem().lightRefAt(alternativePosition);
+                swarmLight.currentPosition = alternativePosition;
+                swarmLight.lightRef = newLightRef;
+
+                // Register new position
+                occupiedPositions.set(altPosKey, swarmLight);
+
+                // Start flickering at new position
+                swarmLight.flickerTask = spawn(
+                  flickerLight(newLightRef, randomGenerator)
+                );
+              } else {
+                // No alternative found within range, terminate this swarm light
+                if (swarmLight.flickerTask) {
+                  swarmLight.flickerTask.return();
+                }
+                // Turn off the light
+                swarmLight.lightRef().fill(LED_OFF);
+                // Remove from tracking
+                occupiedPositions.delete(oldPosKey);
+                swarmLights.splice(i, 1);
               }
-              // Turn off the light
-              swarmLight.lightRef().fill(LED_OFF);
-              // Remove from tracking
-              occupiedPositions.delete(oldPosKey);
-              swarmLights.splice(i, 1);
               continue;
             }
 
