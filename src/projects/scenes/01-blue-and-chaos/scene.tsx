@@ -26,13 +26,7 @@ import {
   LED_OFF,
 } from "@/lib/design-system";
 import lightning from "@/lib/effects/lightning";
-
-// White color palette for chaos - varying brightness
-const WHITE_BRIGHT = new Color("#ffffff");
-const WHITE_HIGH = new Color("#e6e6e6");
-const WHITE_MID = new Color("#cccccc");
-const WHITE_LOW = new Color("#999999");
-const WHITE_DIM = new Color("#666666");
+import chaosRectangles from "@/lib/effects/chaos-rectangles";
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
@@ -89,8 +83,19 @@ export default makeScene2D(function* (view) {
   // Spawn lightning bolt animation
   spawn(
     lightning(ledSystem, screen, {
-      randomSeed: 17,
-      totalBolts: 200,
+      randomSeed: 15,
+      totalBolts: 300,
+      totalDuration: 10,
+    })
+  );
+
+  // Spawn chaos rectangles animation
+  spawn(
+    chaosRectangles(screen, {
+      randomSeed: 42,
+      quantity: 100, // Number of rectangles to spawn
+      density: 4, // Max size: 1-4 grid units
+      speed: 4, // 2x speed multiplier
       totalDuration: 10,
     })
   );
