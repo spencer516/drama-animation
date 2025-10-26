@@ -21,8 +21,8 @@ import {
 const ANIMATION_DURATION = 2.0; // Total duration for all animations
 const HORIZONTAL_LINE_DELAY = 0.08; // Delay between horizontal lines (top to bottom)
 const VERTICAL_LINE_DELAY = 0.08; // Delay between vertical lines (left to right)
-const HORIZONTAL_LINE_LENGTH = 0.9; // Length of horizontal lines (0-1, where 1 = full width)
-const VERTICAL_LINE_LENGTH = 0.9; // Length of vertical lines (0-1, where 1 = full height)
+const HORIZONTAL_LINE_LENGTH = 0.8; // Length of horizontal lines (0-1, where 1 = full width)
+const VERTICAL_LINE_LENGTH = 0.8; // Length of vertical lines (0-1, where 1 = full height)
 const LED_FADE_DURATION = 0.3; // Duration for LED fade in/out
 const LED_DIAGONAL_WIDTH = 6; // Width of the diagonal LED band
 
