@@ -3,7 +3,7 @@ import scene from "./scene?scene";
 import audio from "./Preface B (aac).aac";
 
 export default makeProject({
-  name: "2-blue-and-chaos",
+  name: "01-blue-and-chaos",
   scenes: [scene],
   audio,
   experimentalFeatures: true,
