@@ -4,4 +4,5 @@ import scene from "./scene?scene";
 export default makeProject({
   name: "3-transition-TL-to-BR",
   scenes: [scene],
+  experimentalFeatures: true,
 });

@@ -6,4 +6,5 @@ export default makeProject({
   name: "2-blue-and-chaos",
   scenes: [scene],
   audio,
+  experimentalFeatures: true,
 });

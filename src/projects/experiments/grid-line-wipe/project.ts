@@ -4,4 +4,5 @@ import scene from "./scene?scene";
 export default makeProject({
   name: "Grid Line Wipe",
   scenes: [scene],
+  experimentalFeatures: true,
 });

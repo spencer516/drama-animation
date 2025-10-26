@@ -7,4 +7,5 @@ export default makeProject({
   name: "0PL-prologue-zygote",
   scenes: [scene, chaosScene],
   audio: prefaceAudio,
+  experimentalFeatures: true,
 });

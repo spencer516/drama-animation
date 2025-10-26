@@ -4,4 +4,5 @@ import scene from "./scene?scene";
 export default makeProject({
   name: "Wipe Left-to-Right Project",
   scenes: [scene],
+  experimentalFeatures: true,
 });

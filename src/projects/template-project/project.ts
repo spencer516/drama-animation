@@ -4,4 +4,5 @@ import scene from "./scene?scene";
 export default makeProject({
   name: "Demo Project",
   scenes: [scene],
+  experimentalFeatures: true,
 });

@@ -12,10 +12,10 @@ interface BodyRequest extends IncomingMessage {
   body?: { projectName: string; frames: any[] };
 }
 
-export default function myVitePlugin(): Plugin {
+export default function ledRuntimePlugin(): Plugin {
   let config: PluginConfig;
   return {
-    name: "led-server-plugin",
+    name: "led-server-runtime-plugin",
     configureServer(server) {
       server.middlewares.use("/persist-led-json", json({ limit: "50mb" }));
       server.middlewares.use(

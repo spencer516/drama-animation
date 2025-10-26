@@ -4,4 +4,5 @@ import scene from "./scene?scene";
 export default makeProject({
   name: "06-school-to-home",
   scenes: [scene],
+  experimentalFeatures: true,
 });
