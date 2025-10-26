@@ -1,7 +1,15 @@
-import { View2D } from "@motion-canvas/2d";
+import { Rect, View2D } from "@motion-canvas/2d";
 import { Line } from "@motion-canvas/2d";
 import { setupLEDScene } from "@/lib/LEDSystem";
-import { all, createRefArray, delay, waitFor } from "@motion-canvas/core";
+import {
+  all,
+  Color,
+  createRefArray,
+  delay,
+  Reference,
+  ReferenceArray,
+  waitFor,
+} from "@motion-canvas/core";
 import { STREET_LIGHT_POSITIONS } from "@/lib/scenes/street";
 import {
   GRID_BLUE,
@@ -24,38 +32,134 @@ type Params = {
   transitionDuration: number;
 };
 
+export function* streetToSchool(view: View2D, { transitionDuration }: Params) {
+  const { ledSystem, screen } = setupLEDScene(view);
+
+  const { fullWidth, halfWidth, fullHeight } = getDimensions();
+
+  const { verticalLines, rightHorizontalLines, leftHorizontalLines } =
+    setupLines(screen, fullWidth, fullHeight);
+
+  const { streetLights, otherLights } = getLightPartitions();
+
+  streetLights.map((position) => ledSystem().fillAt(position, LED_YELLOW));
+
+  yield* all(
+    ...verticalLines.map((line) => line.startOffset(0, transitionDuration)),
+    ...rightHorizontalLines.map((line, index) =>
+      delay(
+        rowToDelay(index, transitionDuration, true),
+        line.startOffset(0, transitionDuration)
+      )
+    ),
+    ...leftHorizontalLines.map((line, index) =>
+      delay(
+        rowToDelay(index, transitionDuration, true),
+        line.endOffset(0, transitionDuration)
+      )
+    ),
+    ledSystem().fillAll(LED_BLUE, transitionDuration)
+  );
+
+  yield* waitFor(0.1);
+}
+
 export function* schoolToStreet(view: View2D, { transitionDuration }: Params) {
   const { ledSystem, screen } = setupLEDScene(view);
 
-  const verticalLines = createRefArray<Line>();
-  const rightHorizontalLines = createRefArray<Line>();
-  const leftHorizontalLines = createRefArray<Line>();
+  const { fullWidth, halfWidth, fullHeight } = getDimensions();
 
+  const { verticalLines, rightHorizontalLines, leftHorizontalLines } =
+    setupLines(screen, halfWidth, 0);
+
+  const { streetLights, otherLights } = getLightPartitions();
+
+  ledSystem().fillAll(LED_BLUE);
+
+  yield* all(
+    ...verticalLines.map((line) =>
+      line.startOffset(fullHeight, transitionDuration)
+    ),
+    ...rightHorizontalLines.map((line, index) =>
+      delay(
+        rowToDelay(index, transitionDuration),
+        line.startOffset(fullWidth, transitionDuration)
+      )
+    ),
+    ...leftHorizontalLines.map((line, index) =>
+      delay(
+        rowToDelay(index, transitionDuration),
+        line.endOffset(fullWidth, transitionDuration)
+      )
+    ),
+    ...otherLights.map((position) =>
+      ledSystem().fillAt(position, LED_OFF, transitionDuration)
+    ),
+    ...streetLights.map((position) =>
+      ledSystem().fillAt(position, LED_YELLOW, transitionDuration)
+    )
+  );
+
+  yield* waitFor(0.1);
+}
+
+function getLightPartitions() {
+  const allLights = allPositions();
+  const streetLights = intersectPositions(STREET_LIGHT_POSITIONS, allLights);
+
+  const otherLights = excludePositions(allLights, STREET_LIGHT_POSITIONS);
+
+  return { streetLights, otherLights };
+}
+
+function rowToDelay(
+  row: number,
+  totalDuration: number,
+  reverse: boolean = false
+): number {
+  const durationPerSquare = totalDuration / 15;
+
+  switch (row) {
+    case 0:
+    case 1:
+      return reverse ? durationPerSquare * 3 : 0;
+    case 2:
+    case 3:
+      return reverse ? durationPerSquare * 2 : durationPerSquare;
+    case 4:
+      return reverse ? durationPerSquare : durationPerSquare * 2;
+    case 5:
+      return reverse ? 0 : durationPerSquare * 3;
+  }
+}
+
+function getDimensions() {
   const fullWidth = positionsToDistance([
     [0, 0],
     [15, 0],
   ]);
   const halfWidth = fullWidth / 2;
 
-  const fullWidthPadded = fullWidth + 5;
-
   const fullHeight = positionsToDistance([
     [0, 0],
     [0, 5],
   ]);
 
-  const fullHeightPadded = fullHeight + 5;
+  return { fullWidth, halfWidth, fullHeight };
+}
 
-  const allLights = allPositions();
-
-  const lightsToTurnToStreet = intersectPositions(
-    STREET_LIGHT_POSITIONS,
-    allLights
-  );
-
-  const lightsToFadeOut = excludePositions(allLights, STREET_LIGHT_POSITIONS);
-
-  ledSystem().fillAll(LED_BLUE);
+function setupLines(
+  screen: Reference<Rect>,
+  widthOffset: number,
+  heightOffset: number
+): {
+  verticalLines: ReferenceArray<Line>;
+  rightHorizontalLines: ReferenceArray<Line>;
+  leftHorizontalLines: ReferenceArray<Line>;
+} {
+  const verticalLines = createRefArray<Line>();
+  const rightHorizontalLines = createRefArray<Line>();
+  const leftHorizontalLines = createRefArray<Line>();
 
   screen().add([
     ...sequenceColumns().map((column) => (
@@ -67,6 +171,7 @@ export function* schoolToStreet(view: View2D, { transitionDuration }: Params) {
         ]}
         lineWidth={GRID_LINE_WIDTH}
         stroke={GRID_BLUE}
+        startOffset={heightOffset}
       />
     )),
     ...sequenceRows().map((row) => (
@@ -78,7 +183,7 @@ export function* schoolToStreet(view: View2D, { transitionDuration }: Params) {
         ]}
         lineWidth={GRID_LINE_WIDTH}
         stroke={GRID_BLUE}
-        startOffset={halfWidth}
+        startOffset={widthOffset}
       />
     )),
     ...sequenceRows().map((row) => (
@@ -90,51 +195,10 @@ export function* schoolToStreet(view: View2D, { transitionDuration }: Params) {
         ]}
         lineWidth={GRID_LINE_WIDTH}
         stroke={GRID_BLUE}
-        endOffset={halfWidth}
+        endOffset={widthOffset}
       />
     )),
   ]);
 
-  yield* all(
-    ...verticalLines.map((line) =>
-      line.startOffset(fullHeightPadded, transitionDuration)
-    ),
-    ...rightHorizontalLines.map((line, index) =>
-      delay(
-        rowToDelay(index, transitionDuration),
-        line.startOffset(fullWidthPadded, transitionDuration)
-      )
-    ),
-    ...leftHorizontalLines.map((line, index) =>
-      delay(
-        rowToDelay(index, transitionDuration),
-        line.endOffset(fullWidthPadded, transitionDuration)
-      )
-    ),
-    ...lightsToFadeOut.map((position) =>
-      ledSystem().fillAt(position, LED_OFF, transitionDuration)
-    ),
-    ...lightsToTurnToStreet.map((position) =>
-      ledSystem().fillAt(position, LED_YELLOW, transitionDuration)
-    )
-  );
-
-  yield* waitFor(0.1);
-}
-
-function rowToDelay(row: number, totalDuration: number): number {
-  const durationPerSquare = totalDuration / 15;
-
-  switch (row) {
-    case 0:
-    case 1:
-      return 0;
-    case 2:
-    case 3:
-      return durationPerSquare;
-    case 4:
-      return durationPerSquare * 2;
-    case 5:
-      return durationPerSquare * 3;
-  }
+  return { verticalLines, rightHorizontalLines, leftHorizontalLines };
 }
