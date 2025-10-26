@@ -4,7 +4,7 @@ import prefaceAudio from "./Preface.mp3";
 import chaosScene from "./chaos-scene?scene";
 
 export default makeProject({
-  name: "0PL-prologue-zygote",
+  name: "00PL-prologue-zygote",
   scenes: [scene, chaosScene],
   audio: prefaceAudio,
   experimentalFeatures: true,

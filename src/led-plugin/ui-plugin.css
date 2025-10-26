@@ -1,0 +1,34 @@
+.ui-plugin-link {
+  color: #fff9;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.ui-plugin-header {
+  margin: 0;
+  margin-bottom: 8px;
+}
+
+.ui-plugin-link:hover {
+  color: white;
+}
+
+.ui-plugin-list {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ui-plugin-list > li {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  gap: 10px;
+}
+
+.led-ui-icon {
+  width: 12px;
+  height: 12px;
+}
