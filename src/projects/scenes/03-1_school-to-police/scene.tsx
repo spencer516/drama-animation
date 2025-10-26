@@ -21,7 +21,7 @@ import {
   positionsToDistance,
 } from "@/lib/wall-coordinate-system";
 
-const TRANSITION_TIME = 3;
+const TRANSITION_TIME = 1.3;
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
