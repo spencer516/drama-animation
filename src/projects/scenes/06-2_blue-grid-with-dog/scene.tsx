@@ -7,7 +7,12 @@ import {
   delay,
   waitFor,
 } from "@motion-canvas/core";
-import { GRID_BLUE, GRID_LINE_WIDTH, LED_BLUE } from "@/lib/design-system";
+import {
+  GRID_BLUE,
+  GRID_LINE_WIDTH,
+  LED_BLUE,
+  LED_OFF,
+} from "@/lib/design-system";
 import {
   Position,
   positionsToDistance,
@@ -31,7 +36,11 @@ const DOG_FADE_SPEED = 0.2;
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
 
-  // TODO: add the LEDs!
+  ledSystem().fillAll(LED_BLUE);
+
+  const ledFadePositions = PARTIAL_VERT.flatMap((column) =>
+    PARTIAL_HORIZ.map((row) => [column, row] as Position)
+  );
 
   const permHorizontalLines = createRefArray<Line>();
   const leftHorizontalLines = createRefArray<Line>();
@@ -149,6 +158,9 @@ export default makeScene2D(function* (view) {
   ]);
 
   yield* all(
+    ...ledFadePositions.map((position) =>
+      ledSystem().fillAt(position, LED_OFF, ANIMATION_SPEED)
+    ),
     ...leftHorizontalLines.map((line) =>
       line.endOffset(openWidth, ANIMATION_SPEED)
     ),
@@ -171,6 +183,9 @@ export default makeScene2D(function* (view) {
     delay(
       DOG_FADE_SPEED * 0.8,
       all(
+        ...ledFadePositions.map((position) =>
+          ledSystem().fillAt(position, LED_BLUE, ANIMATION_SPEED)
+        ),
         ...leftHorizontalLines.map((line) =>
           line.endOffset(halfWidth, ANIMATION_SPEED)
         ),
