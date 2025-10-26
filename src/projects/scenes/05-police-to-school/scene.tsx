@@ -1,13 +1,6 @@
-import { Line, makeScene2D } from "@motion-canvas/2d";
-import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
-import { createRef, waitFor } from "@motion-canvas/core";
-import {
-  GRID_BLUE,
-  GRID_GREEN,
-  LED_BLUE,
-  LED_GREEN,
-} from "@/lib/design-system";
-import { positionToCoordinates } from "@/lib/wall-coordinate-system";
+import { makeScene2D } from "@motion-canvas/2d";
+import { setupLEDScene } from "@/lib/LEDSystem";
+import { waitFor } from "@motion-canvas/core";
 import makePolice from "@/lib/scenes/police";
 
 export default makeScene2D(function* (view) {
