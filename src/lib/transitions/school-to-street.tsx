@@ -35,12 +35,12 @@ type Params = {
 export function* streetToSchool(view: View2D, { transitionDuration }: Params) {
   const { ledSystem, screen } = setupLEDScene(view);
 
-  const { fullWidth, halfWidth, fullHeight } = getDimensions();
+  const { fullWidth, fullHeight } = getDimensions();
 
   const { verticalLines, rightHorizontalLines, leftHorizontalLines } =
     setupLines(screen, fullWidth, fullHeight);
 
-  const { streetLights, otherLights } = getLightPartitions();
+  const { streetLights } = getLightPartitions();
 
   streetLights.map((position) => ledSystem().fillAt(position, LED_YELLOW));
 
