@@ -14,7 +14,7 @@ export default defineConfig({
   },
   plugins: [
     motionCanvas({
-      project: ["./src/projects/*/project.ts"],
+      project: ["./src/projects/**/*/project.ts"],
       output: path.join(os.homedir(), "desktop", "drama-animation"),
     }),
     ffmpeg(),
