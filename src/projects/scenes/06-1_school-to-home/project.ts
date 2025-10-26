@@ -1,10 +1,8 @@
 import { makeProject } from "@motion-canvas/core";
 import scene from "./scene?scene";
-import audio from "./Preface B (aac).aac";
 
 export default makeProject({
-  name: "01-blue-and-chaos",
+  name: "06-1_school-to-home",
   scenes: [scene],
-  audio,
   experimentalFeatures: true,
 });

@@ -2,7 +2,7 @@ import { makeProject } from "@motion-canvas/core";
 import scene from "./scene?scene";
 
 export default makeProject({
-  name: "20-park-to-school",
+  name: "07-1_home-to-school",
   scenes: [scene],
   experimentalFeatures: true,
 });
