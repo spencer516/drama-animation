@@ -16,7 +16,7 @@ export const LED_PURPLE = new Color("#b542dbff");
 
 export const GRID_BLUE = new Color("#0000ff");
 
-export const GRID_BLACK = new Color("#000000");
+export const GRID_BLACK = new Color("#00000000");
 
 export const GRID_WHITE = new Color("#ffffff");
 

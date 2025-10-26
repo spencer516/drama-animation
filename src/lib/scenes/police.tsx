@@ -1,4 +1,9 @@
-import { createRefArray, Reference, ReferenceArray } from "@motion-canvas/core";
+import {
+  Color,
+  createRefArray,
+  Reference,
+  ReferenceArray,
+} from "@motion-canvas/core";
 import { LEDSystem } from "../LEDSystem";
 import { Line, Rect } from "@motion-canvas/2d";
 import { GRID_LINE_WIDTH, GRID_YELLOW, LED_YELLOW } from "../design-system";
@@ -10,9 +15,11 @@ import {
   sequenceRows,
 } from "../wall-coordinate-system";
 
-export default function makePolice(
-  ledSystem: Reference<LEDSystem>,
-  screen: Reference<Rect>
+export const POLICE_HEIGHT = 3;
+
+export function setupPoliceStructure(
+  screen: Reference<Rect>,
+  color: Color
 ): {
   horizontalLines: ReferenceArray<Line>;
   verticalLines: ReferenceArray<Line>;
@@ -24,13 +31,9 @@ export default function makePolice(
 
   const rectPositions = sequenceColumns(false).flatMap((column) =>
     sequenceRows(false)
-      .filter((row) => row >= 3)
+      .filter((row) => row >= POLICE_HEIGHT)
       .map((row) => positionToRect([column, row] as Position))
   );
-
-  ledSystem().fillRow(3, LED_YELLOW);
-  ledSystem().fillRow(4, LED_YELLOW);
-  ledSystem().fillRow(5, LED_YELLOW);
 
   screen().add([
     ...sequenceColumns().map((column) => (
@@ -41,11 +44,11 @@ export default function makePolice(
           positionToCoordinates([column, 5]),
         ]}
         lineWidth={GRID_LINE_WIDTH}
-        stroke={GRID_YELLOW}
+        stroke={color}
       />
     )),
     ...sequenceRows()
-      .filter((row) => row >= 3)
+      .filter((row) => row >= POLICE_HEIGHT)
       .map((row) => (
         <Line
           ref={verticalLines}
@@ -54,7 +57,7 @@ export default function makePolice(
             positionToCoordinates([15, row]),
           ]}
           lineWidth={GRID_LINE_WIDTH}
-          stroke={GRID_YELLOW}
+          stroke={color}
         />
       )),
     ...rectPositions.map(({ x, y, width, height }) => (
@@ -64,10 +67,35 @@ export default function makePolice(
         y={y}
         width={width}
         height={height}
-        fill={GRID_YELLOW}
+        fill={color}
       />
     )),
   ]);
 
   return { horizontalLines, verticalLines, rects };
+}
+
+export function getPoliceLightPositions(): Position[] {
+  return sequenceColumns().flatMap((column) =>
+    sequenceRows()
+      .filter((row) => row >= POLICE_HEIGHT)
+      .map((row) => [column, row] as Position)
+  );
+}
+
+export default function makePolice(
+  ledSystem: Reference<LEDSystem>,
+  screen: Reference<Rect>
+): {
+  horizontalLines: ReferenceArray<Line>;
+  verticalLines: ReferenceArray<Line>;
+  rects: ReferenceArray<Rect>;
+} {
+  const lightPositions = getPoliceLightPositions();
+
+  for (const position of lightPositions) {
+    ledSystem().fillAt(position, LED_YELLOW);
+  }
+
+  return setupPoliceStructure(screen, GRID_YELLOW);
 }

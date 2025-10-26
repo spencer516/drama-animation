@@ -82,3 +82,40 @@ export function positionToRect(
 
   return { x, y, width, height };
 }
+
+/**
+ * Returns an array of all positions in the grid system (16 columns x 6 rows)
+ */
+export function allPositions(): Position[] {
+  const positions: Position[] = [];
+  for (const row of sequenceRows()) {
+    for (const col of sequenceColumns()) {
+      positions.push([col, row]);
+    }
+  }
+  return positions;
+}
+
+/**
+ * Returns positions that exist in both arrays
+ */
+export function intersectPositions(
+  positions1: Position[],
+  positions2: Position[]
+): Position[] {
+  const set2 = new Set(positions2.map(([col, row]) => `${col},${row}`));
+  return positions1.filter(([col, row]) => set2.has(`${col},${row}`));
+}
+
+/**
+ * Returns positions from the first array that are not in the second array
+ */
+export function excludePositions(
+  positions: Position[],
+  positionsToExclude: Position[]
+): Position[] {
+  const excludeSet = new Set(
+    positionsToExclude.map(([col, row]) => `${col},${row}`)
+  );
+  return positions.filter(([col, row]) => !excludeSet.has(`${col},${row}`));
+}

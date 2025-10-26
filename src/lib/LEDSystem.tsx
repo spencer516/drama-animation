@@ -79,7 +79,7 @@ export function createFilledGrid(
     )),
     ...sequenceRows().map((row) => (
       <Line
-        ref={verticalLines}
+        ref={horizontalLines}
         points={[
           positionToCoordinates([0, row]),
           positionToCoordinates([15, row]),
