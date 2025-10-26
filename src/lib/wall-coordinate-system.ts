@@ -87,13 +87,9 @@ export function positionToRect(
  * Returns an array of all positions in the grid system (16 columns x 6 rows)
  */
 export function allPositions(): Position[] {
-  const positions: Position[] = [];
-  for (const row of sequenceRows()) {
-    for (const col of sequenceColumns()) {
-      positions.push([col, row]);
-    }
-  }
-  return positions;
+  return sequenceRows().flatMap((row) =>
+    sequenceColumns().map((column) => [column, row] as Position)
+  );
 }
 
 /**

@@ -2,29 +2,25 @@ import { Reference } from "@motion-canvas/core";
 import { LEDSystem } from "../LEDSystem";
 import { Rect } from "@motion-canvas/2d";
 import { LED_YELLOW } from "../design-system";
+import { Position } from "../wall-coordinate-system";
 
-export default function makeStreet(
-  ledSystem: Reference<LEDSystem>,
-  _screen: Reference<Rect>
-): {
-  // topPath: Reference<Line>;
-  // middlePath: Reference<Line>;
-  // bottomPath: Reference<Line>;
-} {
-  // Second row is mixed
-  ledSystem().fillAt([0, 0], LED_YELLOW);
-  ledSystem().fillAt([0, 1], LED_YELLOW);
-  ledSystem().fillAt([1, 2], LED_YELLOW);
-  ledSystem().fillAt([1, 3], LED_YELLOW);
-  ledSystem().fillAt([2, 4], LED_YELLOW);
-  ledSystem().fillAt([3, 5], LED_YELLOW);
+export const STREET_LIGHT_POSITIONS: Position[] = [
+  [0, 0],
+  [0, 1],
+  [1, 2],
+  [1, 3],
+  [2, 4],
+  [3, 5],
+  [15, 0],
+  [15, 1],
+  [14, 2],
+  [14, 3],
+  [13, 4],
+  [12, 5],
+];
 
-  ledSystem().fillAt([15, 0], LED_YELLOW);
-  ledSystem().fillAt([15, 1], LED_YELLOW);
-  ledSystem().fillAt([14, 2], LED_YELLOW);
-  ledSystem().fillAt([14, 3], LED_YELLOW);
-  ledSystem().fillAt([13, 4], LED_YELLOW);
-  ledSystem().fillAt([12, 5], LED_YELLOW);
-
-  return {};
+export default function makeStreet(ledSystem: Reference<LEDSystem>): void {
+  STREET_LIGHT_POSITIONS.map((position) =>
+    ledSystem().fillAt(position, LED_YELLOW)
+  );
 }
