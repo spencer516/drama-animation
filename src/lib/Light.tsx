@@ -53,7 +53,7 @@ export class Light extends Node {
         fill={this.color()}
         zIndex={100}
         stroke="ffffff99"
-        lineWidth={2}
+        lineWidth={0}
       />
     );
 
