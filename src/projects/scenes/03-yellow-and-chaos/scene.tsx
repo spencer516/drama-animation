@@ -18,7 +18,10 @@ export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
   const randomGenerator = useRandom();
 
-  const { horizontalLines, verticalLines } = makePolice(ledSystem, screen);
+  const { horizontalLines, verticalLines, rects } = makePolice(
+    ledSystem,
+    screen
+  );
 
   // Spawn chaotic line removal animation
   const allLines = [...horizontalLines, ...verticalLines];
@@ -50,6 +53,38 @@ export default makeScene2D(function* (view) {
 
       // Fade away
       yield* line.opacity(0, fadeDuration, easeInQuad);
+    });
+  });
+
+  // Spawn chaotic rect fill flickering animation
+  const rectCount = rects.length;
+
+  // Create a shuffled array of indices for random removal
+  const rectIndices = Array.from({ length: rectCount }, (_, i) => i);
+  for (let i = rectIndices.length - 1; i > 0; i--) {
+    const j = Math.floor(randomGenerator.nextFloat() * (i + 1));
+    [rectIndices[i], rectIndices[j]] = [rectIndices[j], rectIndices[i]];
+  }
+
+  // Animate each rect with slight time offsets for chaos
+  rectIndices.map((idx, order) => {
+    const rect = rects[idx];
+    const delay = (order / rectCount) * 0.3; // Spread over 0.3s
+    const flickerDuration = 0.05 + randomGenerator.nextFloat() * 0.05; // 0.05-0.1s
+    const fadeDuration = 0.1 + randomGenerator.nextFloat() * 0.1; // 0.1-0.2s
+
+    spawn(function* () {
+      yield* waitFor(delay);
+
+      // Quick flicker to bright yellow
+      yield* rect.fill(
+        new Color(GRID_YELLOW).brighten(2),
+        flickerDuration,
+        easeOutQuad
+      );
+
+      // Fade away
+      yield* rect.opacity(0, fadeDuration, easeInQuad);
     });
   });
 
