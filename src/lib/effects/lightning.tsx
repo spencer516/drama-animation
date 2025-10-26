@@ -122,36 +122,35 @@ export default function* lightning(
     return path;
   };
 
-  // Create a lightning bolt that animates along a path
-  const createBolt = function* () {
-    // Generate path from edge to edge
-    const path = generateLightningPath();
+  // Spawn a bunch of bolts with a random delay between 0-10s
+  for (let i = 0; i < totalBolts; i++) {
+    spawn(function* () {
+      yield* waitFor(randomGenerator.nextFloat(0, totalDuration));
 
-    // Convert path to screen coordinates
-    const points = path.map((pos) => positionToCoordinates(pos));
-    const length = coordinatesToDistance(points);
+      // Generate path from edge to edge
+      const path = generateLightningPath();
 
-    // Create the lightning line
-    const bolt = createRef<Line>();
-    screen().add(
-      <Line
-        ref={bolt}
-        points={points}
-        stroke={WHITE_BRIGHT}
-        lineWidth={GRID_LINE_WIDTH}
-        lineCap="round"
-        lineJoin="round"
-        startOffset={0}
-        endOffset={length}
-      />
-    );
+      // Convert path to screen coordinates
+      const points = path.map((pos) => positionToCoordinates(pos));
+      const length = coordinatesToDistance(points);
 
-    const boltDuration = 0.2 + randomGenerator.nextFloat() * 0.2; // 0.2-0.4s
+      // Create the lightning line
+      const bolt = createRef<Line>();
+      screen().add(
+        <Line
+          ref={bolt}
+          points={points}
+          stroke={WHITE_BRIGHT}
+          lineWidth={GRID_LINE_WIDTH}
+          lineCap="round"
+          lineJoin="round"
+          startOffset={0}
+          endOffset={length}
+        />
+      );
 
-    // Animate the bolt from start to end
-    yield* all(
-      bolt().startOffset(0, boltDuration, easeInQuad),
-      bolt().endOffset(0, boltDuration, easeInQuad),
+      const boltDuration = 0.2 + randomGenerator.nextFloat() * 0.2; // 0.2-0.4s
+
       // Simultaneously track LED positions
       spawn(function* () {
         const segmentDuration = boltDuration / path.length;
@@ -164,18 +163,16 @@ export default function* lightning(
           // Turn off LED
           ledSystem().fillAt(path[i], LED_OFF);
         }
-      })
-    );
+      });
 
-    // Remove the bolt
-    bolt().remove();
-  };
+      // Animate the bolt from start to end
+      yield* all(
+        bolt().startOffset(0, boltDuration, easeInQuad),
+        bolt().endOffset(0, boltDuration, easeInQuad)
+      );
 
-  // Spawn a bunch of bolts with a random delay between 0-10s
-  for (let i = 0; i < totalBolts; i++) {
-    spawn(function* () {
-      yield* waitFor(randomGenerator.nextFloat(0, totalDuration));
-      yield* createBolt();
+      // Remove the bolt
+      bolt().remove();
     });
   }
 }

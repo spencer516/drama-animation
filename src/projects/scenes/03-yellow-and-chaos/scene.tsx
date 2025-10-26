@@ -9,24 +9,16 @@ import {
   easeInQuad,
   easeOutQuad,
 } from "@motion-canvas/core";
-import { GRID_BLUE, LED_BLUE } from "@/lib/design-system";
+import { GRID_BLUE, GRID_YELLOW, LED_BLUE } from "@/lib/design-system";
 import lightning from "@/lib/effects/lightning";
 import chaosRectangles from "@/lib/effects/chaos-rectangles";
+import makePolice from "@/lib/scenes/police";
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
   const randomGenerator = useRandom();
 
-  const { fill, horizontalLines, verticalLines } = createFilledGrid(
-    ledSystem,
-    screen
-  );
-
-  // Initial state: Everything blue with grid
-  fill({
-    ledColor: LED_BLUE,
-    gridColor: GRID_BLUE,
-  });
+  const { horizontalLines, verticalLines } = makePolice(ledSystem, screen);
 
   // Spawn chaotic line removal animation
   const allLines = [...horizontalLines, ...verticalLines];
@@ -51,7 +43,7 @@ export default makeScene2D(function* (view) {
 
       // Quick flicker to bright blue
       yield* line.stroke(
-        new Color(GRID_BLUE).brighten(2),
+        new Color(GRID_YELLOW).brighten(2),
         flickerDuration,
         easeOutQuad
       );
@@ -64,8 +56,8 @@ export default makeScene2D(function* (view) {
   // Spawn lightning bolt animation
   spawn(
     lightning(ledSystem, screen, {
-      randomSeed: 15,
-      totalBolts: 300,
+      randomSeed: 10,
+      totalBolts: 400,
       totalDuration: 10,
     })
   );
@@ -73,8 +65,8 @@ export default makeScene2D(function* (view) {
   // Spawn chaos rectangles animation
   spawn(
     chaosRectangles(screen, {
-      randomSeed: 42,
-      quantity: 100, // Number of rectangles to spawn
+      randomSeed: 99,
+      quantity: 200, // Number of rectangles to spawn
       density: 4, // Max size: 1-4 grid units
       speed: 4, // 2x speed multiplier
       totalDuration: 10,
