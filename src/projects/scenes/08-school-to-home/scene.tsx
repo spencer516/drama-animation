@@ -5,7 +5,7 @@ export default makeScene2D(function* (view) {
   yield* homeToSchool(view, {
     lineDuration: 0.9,
     stagger: 0.1,
-    randomSeed: 7,
-    direction: "home-to-school",
+    randomSeed: 89,
+    direction: "school-to-home",
   });
 });
