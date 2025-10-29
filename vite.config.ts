@@ -16,7 +16,7 @@ export default defineConfig({
   plugins: [
     motionCanvas({
       project: ["./src/projects/**/*/project.ts"],
-      output: path.join(os.homedir(), "desktop", "drama-animation"),
+      output: path.join(os.homedir(), "desktop", "exported-media"),
     }),
     ffmpeg(),
     ledRuntimePlugin(),
