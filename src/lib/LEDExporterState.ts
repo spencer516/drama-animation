@@ -92,17 +92,17 @@ export default class LEDExporterState {
   }
 
   public async finalize() {
-    const frames = this.frames.map((frame) => {
-      const currentFrame: SerializedFrame = {};
+    const frames = this.frames.flatMap((frame) => {
+      const currentFrame: number[] = [];
 
       let index = 0;
       for (const { color } of frame.lights) {
         const channel = index * 3;
         const [r, g, b] = color.rgb();
 
-        currentFrame[channel + 1] = rgbToChannel(r);
-        currentFrame[channel + 2] = rgbToChannel(g);
-        currentFrame[channel + 3] = rgbToChannel(b);
+        currentFrame[channel] = rgbToChannel(r);
+        currentFrame[channel + 1] = rgbToChannel(g);
+        currentFrame[channel + 2] = rgbToChannel(b);
 
         index++;
       }

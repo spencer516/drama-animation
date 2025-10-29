@@ -9,7 +9,7 @@ import { promises as fs } from "fs";
 import path from "path";
 
 interface BodyRequest extends IncomingMessage {
-  body?: { projectName: string; frames: any[] };
+  body?: { projectName: string; frames: number[] };
 }
 
 export default function ledRuntimePlugin(): Plugin {
@@ -23,11 +23,12 @@ export default function ledRuntimePlugin(): Plugin {
         async (req: BodyRequest, res) => {
           res.end();
           const { projectName, frames } = req.body;
-          const sanitizedName = sanitizeProjectName(projectName);
+
+          const framesBuffer = new Int16Array(frames);
 
           await writeFileSafe(
-            path.join(config.output, `${sanitizedName}.json`),
-            JSON.stringify(frames)
+            path.join(config.output, `${projectName}.bin`),
+            Buffer.from(framesBuffer.buffer)
           );
         }
       );
@@ -41,20 +42,12 @@ export default function ledRuntimePlugin(): Plugin {
   };
 }
 
-function sanitizeProjectName(name: string): string {
-  return name
-    .toLowerCase() // Convert to lowercase
-    .replace(/[^a-z0-9\-]/g, "-") // Replace invalid characters with dash
-    .replace(/-+/g, "-") // Replace multiple consecutive dashes with single dash
-    .replace(/^-+|-+$/g, ""); // Remove leading/trailing dashes
-}
-
-async function writeFileSafe(filePath: string, data: string) {
+async function writeFileSafe(filePath: string, data: Buffer<ArrayBuffer>) {
   const dir = path.dirname(filePath);
 
   // Ensure the directory exists
   await fs.mkdir(dir, { recursive: true });
 
   // Write the file
-  await fs.writeFile(filePath, data, "utf8");
+  await fs.writeFile(filePath, data);
 }

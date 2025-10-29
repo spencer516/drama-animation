@@ -9,7 +9,7 @@ import { ObjectMetaField } from "@motion-canvas/core";
 
 export class LEDExporter implements Exporter {
   public static readonly id = "leds-exporter";
-  public static readonly displayName = "LEDs JSON";
+  public static readonly displayName = "LEDs Binary";
 
   public static meta(project: Project): MetaField<any> {
     return new ObjectMetaField(this.displayName, {});
