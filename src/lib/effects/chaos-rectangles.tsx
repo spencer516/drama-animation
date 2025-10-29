@@ -24,28 +24,30 @@ type Params = {
   density: number; // Multiplier for quantity (more density = more rectangles)
   speed: number; // Speed multiplier (higher = faster flicker/fade)
   totalDuration: number;
+  baseColor?: Color;
 };
 
 // White color palette for chaos rectangles
 const WHITE_BRIGHT = new Color("#ffffff");
-const WHITE_HIGH = new Color("#e6e6e6");
-const WHITE_MID = new Color("#cccccc");
-const WHITE_LOW = new Color("#999999");
-const WHITE_DIM = new Color("#666666");
 
-const WHITE_COLORS = [
-  WHITE_BRIGHT,
-  WHITE_HIGH,
-  WHITE_MID,
-  WHITE_LOW,
-  WHITE_DIM,
-];
+function makeColors(color: Color) {
+  return [
+    color,
+    color.darken(0.49),
+    color.darken(1),
+    color.darken(1.91),
+    color.darken(3.15),
+  ];
+}
 
 export default function* chaosRectangles(
   screen: Reference<Rect>,
-  { randomSeed, quantity, density, speed, totalDuration }: Params
+  { randomSeed, quantity, density, speed, totalDuration, baseColor }: Params
 ): ThreadGenerator {
   const randomGenerator = useRandom(randomSeed);
+  const COLORS = makeColors(baseColor ?? WHITE_BRIGHT);
+
+  console.log(COLORS.map((color) => color.hex()));
 
   // Generate a random 1x1 rectangle position
   const generateRandomRect = (): {
@@ -75,9 +77,7 @@ export default function* chaosRectangles(
 
     // Random white color
     const color =
-      WHITE_COLORS[
-        Math.floor(randomGenerator.nextFloat() * WHITE_COLORS.length)
-      ];
+      COLORS[Math.floor(randomGenerator.nextFloat() * COLORS.length)];
 
     const rect = createRef<Rect>();
     screen().add(

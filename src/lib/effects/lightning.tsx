@@ -24,6 +24,7 @@ type Params = {
   randomSeed: number;
   totalBolts: number;
   totalDuration: number;
+  baseColor?: Color;
 };
 
 const WHITE_BRIGHT = new Color("#ffffff");
@@ -31,8 +32,9 @@ const WHITE_BRIGHT = new Color("#ffffff");
 export default function* lightning(
   ledSystem: Reference<LEDSystem>,
   screen: Reference<Rect>,
-  { randomSeed, totalBolts, totalDuration }: Params
+  { randomSeed, totalBolts, totalDuration, baseColor }: Params
 ): ThreadGenerator {
+  const color = baseColor ?? WHITE_BRIGHT;
   const randomGenerator = useRandom(randomSeed);
   // Generate a random starting position on an edge
   const getRandomEdgePosition = (): Position => {
@@ -140,7 +142,7 @@ export default function* lightning(
         <Line
           ref={bolt}
           points={points}
-          stroke={WHITE_BRIGHT}
+          stroke={color}
           lineWidth={GRID_LINE_WIDTH}
           lineCap="round"
           lineJoin="round"
@@ -156,7 +158,7 @@ export default function* lightning(
         const segmentDuration = boltDuration / path.length;
         for (let i = 0; i < path.length; i++) {
           // Turn on LED at current position
-          ledSystem().fillAt(path[i], WHITE_BRIGHT);
+          ledSystem().fillAt(path[i], color);
 
           yield* waitFor(segmentDuration);
 
