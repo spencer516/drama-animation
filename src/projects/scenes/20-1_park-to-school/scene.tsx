@@ -1,21 +1,23 @@
-import { Line, makeScene2D } from "@motion-canvas/2d";
-import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
-import { createRef, waitFor } from "@motion-canvas/core";
-import {
-  GRID_BLUE,
-  GRID_GREEN,
-  LED_BLUE,
-  LED_GREEN,
-} from "@/lib/design-system";
-import { positionToCoordinates } from "@/lib/wall-coordinate-system";
+import { makeScene2D } from "@motion-canvas/2d";
+import { setupLEDScene } from "@/lib/LEDSystem";
+import { all, waitFor } from "@motion-canvas/core";
+import { GRID_BLUE, LED_BLUE } from "@/lib/design-system";
 import makePark from "@/lib/scenes/park";
+
+const TRANSITION_DURATION = 3;
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
 
-  const { topPath, middlePath, bottomPath } = makePark(ledSystem, screen);
+  const { greenPositions, topPath, bottomPath } = makePark(ledSystem, screen);
 
-  // TODO: Add transition to school
+  yield* all(
+    ...greenPositions.map((position) =>
+      ledSystem().fillAt(position, LED_BLUE, TRANSITION_DURATION)
+    ),
+    topPath().fill(GRID_BLUE, TRANSITION_DURATION),
+    bottomPath().fill(GRID_BLUE, TRANSITION_DURATION)
+  );
 
-  yield* waitFor(10);
+  yield* waitFor(0.1);
 });

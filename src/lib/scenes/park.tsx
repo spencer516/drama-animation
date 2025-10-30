@@ -1,62 +1,64 @@
 import { createRef, Reference } from "@motion-canvas/core";
 import { LEDSystem } from "../LEDSystem";
 import { Line, Rect } from "@motion-canvas/2d";
-import { GRID_BLUE, GRID_GREEN, LED_BLUE, LED_GREEN } from "../design-system";
-import { positionToCoordinates } from "../wall-coordinate-system";
+import {
+  GRID_BLACK,
+  GRID_BLUE,
+  GRID_GREEN,
+  LED_BLUE,
+  LED_GREEN,
+} from "../design-system";
+import {
+  allPositions,
+  excludePositions,
+  Position,
+  positionToCoordinates,
+  sequenceColumns,
+} from "../wall-coordinate-system";
+
+const GREEN_POSITIONS: Position[] = [
+  ...sequenceColumns().map((column) => [column, 0] as Position),
+  [0, 1],
+  [1, 1],
+  [2, 1],
+  [3, 1],
+  [6, 1],
+  [7, 1],
+  [8, 1],
+  [9, 1],
+  [12, 1],
+  [13, 1],
+  [14, 1],
+  [15, 1],
+  [1, 2],
+  [2, 2],
+  [7, 2],
+  [8, 2],
+  [13, 2],
+  [14, 2],
+  ...sequenceColumns().map((column) => [column, 5] as Position),
+];
+
+const BLUE_POSITIONS: Position[] = excludePositions(
+  allPositions(),
+  GREEN_POSITIONS
+);
 
 export default function makePark(
   ledSystem: Reference<LEDSystem>,
-  screen: Reference<Rect>
+  screen: Reference<Rect>,
+  shouldFill: boolean = true
 ): {
   topPath: Reference<Line>;
   middlePath: Reference<Line>;
   bottomPath: Reference<Line>;
+  greenPositions: Position[];
+  bluePositions: Position[];
 } {
-  // Top row is green
-  ledSystem().fillRow(0, LED_GREEN);
-
-  // Second row is mixed
-  ledSystem().fillAt([0, 1], LED_GREEN);
-  ledSystem().fillAt([1, 1], LED_GREEN);
-  ledSystem().fillAt([2, 1], LED_GREEN);
-  ledSystem().fillAt([3, 1], LED_GREEN);
-  ledSystem().fillAt([4, 1], LED_BLUE);
-  ledSystem().fillAt([5, 1], LED_BLUE);
-  ledSystem().fillAt([6, 1], LED_GREEN);
-  ledSystem().fillAt([7, 1], LED_GREEN);
-  ledSystem().fillAt([8, 1], LED_GREEN);
-  ledSystem().fillAt([9, 1], LED_GREEN);
-  ledSystem().fillAt([10, 1], LED_BLUE);
-  ledSystem().fillAt([11, 1], LED_BLUE);
-  ledSystem().fillAt([12, 1], LED_GREEN);
-  ledSystem().fillAt([13, 1], LED_GREEN);
-  ledSystem().fillAt([14, 1], LED_GREEN);
-  ledSystem().fillAt([15, 1], LED_GREEN);
-
-  // Third Row is mixed
-  ledSystem().fillAt([0, 2], LED_BLUE);
-  ledSystem().fillAt([1, 2], LED_GREEN);
-  ledSystem().fillAt([2, 2], LED_GREEN);
-  ledSystem().fillAt([3, 2], LED_BLUE);
-  ledSystem().fillAt([4, 2], LED_BLUE);
-  ledSystem().fillAt([5, 2], LED_BLUE);
-  ledSystem().fillAt([6, 2], LED_BLUE);
-  ledSystem().fillAt([7, 2], LED_GREEN);
-  ledSystem().fillAt([8, 2], LED_GREEN);
-  ledSystem().fillAt([9, 2], LED_BLUE);
-  ledSystem().fillAt([10, 2], LED_BLUE);
-  ledSystem().fillAt([11, 2], LED_BLUE);
-  ledSystem().fillAt([12, 2], LED_BLUE);
-  ledSystem().fillAt([13, 2], LED_GREEN);
-  ledSystem().fillAt([14, 2], LED_GREEN);
-  ledSystem().fillAt([15, 2], LED_BLUE);
-
-  // Two Rows of blue
-  ledSystem().fillRow(3, LED_BLUE);
-  ledSystem().fillRow(4, LED_BLUE);
-
-  // Bottom row is green
-  ledSystem().fillRow(5, LED_GREEN);
+  if (shouldFill) {
+    GREEN_POSITIONS.map((position) => ledSystem().fillAt(position, LED_GREEN));
+    BLUE_POSITIONS.map((position) => ledSystem().fillAt(position, LED_BLUE));
+  }
 
   const bottomPath = createRef<Line>();
   const middlePath = createRef<Line>();
@@ -72,7 +74,7 @@ export default function makePark(
           positionToCoordinates([15, 4]),
           positionToCoordinates([0, 4]),
         ]}
-        fill={GRID_GREEN}
+        fill={shouldFill ? GRID_GREEN : GRID_BLACK}
       />
       <Line
         ref={middlePath}
@@ -96,7 +98,7 @@ export default function makePark(
           positionToCoordinates([1, 2]),
           positionToCoordinates([0, 1]),
         ]}
-        fill={GRID_BLUE}
+        fill={shouldFill ? GRID_BLUE : GRID_BLACK}
       />
       <Line
         ref={topPath}
@@ -121,10 +123,16 @@ export default function makePark(
           positionToCoordinates([0, 1]),
           positionToCoordinates([0, 0]),
         ]}
-        fill={GRID_GREEN}
+        fill={shouldFill ? GRID_GREEN : GRID_BLACK}
       />
     </>
   );
 
-  return { topPath, middlePath, bottomPath };
+  return {
+    topPath,
+    middlePath,
+    bottomPath,
+    greenPositions: GREEN_POSITIONS,
+    bluePositions: BLUE_POSITIONS,
+  };
 }
