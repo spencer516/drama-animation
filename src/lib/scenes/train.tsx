@@ -49,7 +49,7 @@ export function setupTrainStructure(screen: Reference<Rect>): {
       .filter((row) => row >= TRAIN_HEIGHT)
       .map((row) => (
         <Line
-          ref={verticalLines}
+          ref={horizontalLines}
           points={[
             positionToCoordinates([0, row]),
             positionToCoordinates([15, row]),

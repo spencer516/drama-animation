@@ -28,10 +28,15 @@ export function sequenceColumns(includeLast: boolean = true): ColumnPosition[] {
 }
 
 export function positionToCoordinates([column, row]: Position): Coordinates {
-  const x = column * scale + translateX;
-  const y = row * scale + translateY;
+  return [columnToXCoordinate(column), rowToYCoordinate(row)];
+}
 
-  return [x, y];
+export function columnToXCoordinate(column: ColumnPosition): number {
+  return column * scale + translateX;
+}
+
+export function rowToYCoordinate(row: RowPosition): number {
+  return row * scale + translateY;
 }
 
 export function positionsToDistance(positions: Position[]): number {
