@@ -6,7 +6,7 @@ import { GRID_BLUE, LED_BLUE, LED_ON, LED_OFF } from "@/lib/design-system";
 // Configuration variables
 const FADE_DURATION = 3; // Duration of each LED fade in/out in seconds
 const SPARKLE_DURATION = 30; // Total duration of the sparkling effect in seconds
-const SPARKLE_PERCENTAGE = 0.3; // Percentage of LEDs that sparkle at any given time
+const SPARKLE_PERCENTAGE = 0.7; // Percentage of LEDs that sparkle at any given time
 
 export default makeScene2D(function* (view) {
   const random = useRandom();
@@ -25,20 +25,52 @@ export default makeScene2D(function* (view) {
   // Collect all LED references
   const allLEDs = Array.from(ledSystem().iterate());
   let isSparkling = true;
+  const sparklingLEDs = new Set<number>();
 
-  /*
-  CLAUDE: HERE!!!
-  First, use spawn() to create a bunch of independent workers. The number
-  of workers is based on SPARKLE_PERCENTAGE
+  // Calculate number of workers based on sparkle percentage
+  const numWorkers = Math.ceil(allLEDs.length * SPARKLE_PERCENTAGE);
 
-  The worker will run continuously in a loop provded that isSparkling is true
+  // Create independent workers
+  for (let i = 0; i < numWorkers; i++) {
+    spawn(function* () {
+      while (isSparkling) {
+        // Random delay before next sparkle
+        yield* waitFor(random.nextFloat(0.1, 1));
 
-  In each loop, it will 
-    - delay itself for a random amount of time
-    - choose a random light that is not already being sparkled
-    - fade the light from blue to LED_ON (randomized duration)
-    - fade the light from LED_ON to blue (randomized duration)
-  */
+        // Choose a random LED that's not already sparkling
+        let ledIndex: number;
+        let attempts = 0;
+        do {
+          ledIndex = random.nextInt(0, allLEDs.length - 1);
+          attempts++;
+        } while (sparklingLEDs.has(ledIndex) && attempts < 10);
+
+        // Skip if all LEDs are busy (shouldn't happen with proper percentage)
+        if (sparklingLEDs.has(ledIndex)) {
+          yield* waitFor(1);
+        }
+
+        sparklingLEDs.add(ledIndex);
+        const [ledRef] = allLEDs[ledIndex];
+
+        // Fade to white with randomized duration
+        const fadeInDuration = random.nextFloat(
+          FADE_DURATION * 0.5,
+          FADE_DURATION * 1.5
+        );
+        yield* ledRef().fill(LED_ON, fadeInDuration);
+
+        // Fade back to blue with randomized duration
+        const fadeOutDuration = random.nextFloat(
+          FADE_DURATION * 0.5,
+          FADE_DURATION * 1.5
+        );
+        yield* ledRef().fill(LED_BLUE, fadeOutDuration);
+
+        sparklingLEDs.delete(ledIndex);
+      }
+    });
+  }
 
   yield* waitFor(SPARKLE_DURATION);
 
