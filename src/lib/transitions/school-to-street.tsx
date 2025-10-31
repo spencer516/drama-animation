@@ -40,7 +40,7 @@ export function* streetToSchool(view: View2D, { transitionDuration }: Params) {
   const { verticalLines, rightHorizontalLines, leftHorizontalLines } =
     setupLines(screen, fullWidth, fullHeight);
 
-  const { streetLights } = getLightPartitions();
+  const { streetLights } = getStreetLightPartitions();
 
   streetLights.map((position) => ledSystem().fillAt(position, LED_YELLOW));
 
@@ -72,7 +72,7 @@ export function* schoolToStreet(view: View2D, { transitionDuration }: Params) {
   const { verticalLines, rightHorizontalLines, leftHorizontalLines } =
     setupLines(screen, halfWidth, 0);
 
-  const { streetLights, otherLights } = getLightPartitions();
+  const { streetLights, otherLights } = getStreetLightPartitions();
 
   ledSystem().fillAll(LED_BLUE);
 
@@ -103,7 +103,7 @@ export function* schoolToStreet(view: View2D, { transitionDuration }: Params) {
   yield* waitFor(0.1);
 }
 
-function getLightPartitions() {
+export function getStreetLightPartitions() {
   const allLights = allPositions();
   const streetLights = intersectPositions(STREET_LIGHT_POSITIONS, allLights);
 
