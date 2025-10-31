@@ -3,8 +3,8 @@ import scene from "./scene?scene";
 import audio from "./Preface B (aac).aac";
 
 export default makeProject({
-  name: "38-1_purple-and-chaos",
+  name: "36-1_train-to-chaos",
   scenes: [scene],
-  audio,
   experimentalFeatures: true,
+  audio,
 });

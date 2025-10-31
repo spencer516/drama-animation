@@ -12,6 +12,7 @@ import {
 import { GRID_BLUE, LED_BLUE } from "@/lib/design-system";
 import lightning from "@/lib/effects/lightning";
 import chaosRectangles from "@/lib/effects/chaos-rectangles";
+import { chaoticLineRemoval } from "@/lib/effects/random-chaotic-removal";
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
@@ -28,38 +29,8 @@ export default makeScene2D(function* (view) {
     gridColor: GRID_BLUE,
   });
 
-  // Spawn chaotic line removal animation
   const allLines = [...horizontalLines, ...verticalLines];
-  const lineCount = allLines.length;
-
-  // Create a shuffled array of indices for random removal
-  const indices = Array.from({ length: lineCount }, (_, i) => i);
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(randomGenerator.nextFloat() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-
-  // Animate each line with slight time offsets for chaos
-  indices.map((idx, order) => {
-    const line = allLines[idx];
-    const delay = (order / lineCount) * 0.3; // Spread over 0.3s
-    const flickerDuration = 0.05 + randomGenerator.nextFloat() * 0.05; // 0.05-0.1s
-    const fadeDuration = 0.1 + randomGenerator.nextFloat() * 0.1; // 0.1-0.2s
-
-    spawn(function* () {
-      yield* waitFor(delay);
-
-      // Quick flicker to bright blue
-      yield* line.stroke(
-        new Color(GRID_BLUE).brighten(2),
-        flickerDuration,
-        easeOutQuad
-      );
-
-      // Fade away
-      yield* line.opacity(0, fadeDuration, easeInQuad);
-    });
-  });
+  chaoticLineRemoval(randomGenerator, allLines);
 
   // Spawn lightning bolt animation
   spawn(
