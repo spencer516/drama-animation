@@ -4,6 +4,7 @@ import {
   all,
   createRefMap,
   linear,
+  spawn,
   useRandom,
   waitFor,
 } from "@motion-canvas/core";
@@ -277,6 +278,10 @@ export default makeScene2D(function* (view) {
       yield* animatePath(path);
     })()
   );
+
+  spawn(function* () {
+    yield* screen().opacity(0, 3);
+  });
 
   yield* all(...pathAnimations);
 
