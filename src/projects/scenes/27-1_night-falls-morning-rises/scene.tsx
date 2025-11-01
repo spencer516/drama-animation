@@ -1,5 +1,5 @@
 import { Gradient, makeScene2D, Rect } from "@motion-canvas/2d";
-import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
+import { setupLEDScene } from "@/lib/LEDSystem";
 import {
   all,
   Color,
@@ -7,19 +7,9 @@ import {
   createRefArray,
   linear,
   tween,
-  waitFor,
 } from "@motion-canvas/core";
+import { GRID_BLUE, GRID_LINE_WIDTH } from "@/lib/design-system";
 import {
-  GRID_BLACK,
-  GRID_BLUE,
-  GRID_GREEN,
-  GRID_LINE_WIDTH,
-  GRID_RED,
-  LED_BLUE,
-  LED_OFF,
-} from "@/lib/design-system";
-import {
-  positionsToDistance,
   positionToCoordinates,
   positionToRect,
   sequenceColumns,
