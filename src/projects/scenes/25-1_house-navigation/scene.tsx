@@ -10,7 +10,7 @@ import {
   linear,
   delay,
 } from "@motion-canvas/core";
-import { GRID_RED, LED_OFF, LED_RED } from "@/lib/design-system";
+import { GRID_RED, GRID_WHITE, LED_OFF, LED_RED } from "@/lib/design-system";
 import {
   Position,
   positionToCoordinates,
@@ -106,19 +106,6 @@ export default makeScene2D(function* (view) {
     const lineRef = createRef<Line>();
     const coordinates = pathPoints.map(positionToCoordinates);
 
-    screen().add(
-      <Line
-        ref={lineRef}
-        points={coordinates}
-        stroke={GRID_RED}
-        lineWidth={8}
-        start={0}
-        end={0}
-        lineCap="round"
-        lineJoin="round"
-      />
-    );
-
     // Create squares around the destination point
     const squareRefs: any[] = [];
     const squarePositions = getSurroundingSquares(to);
@@ -139,6 +126,19 @@ export default makeScene2D(function* (view) {
       );
       squareRefs.push(squareRef);
     }
+
+    screen().add(
+      <Line
+        ref={lineRef}
+        points={coordinates}
+        stroke={GRID_WHITE}
+        lineWidth={8}
+        start={0}
+        end={0}
+        lineCap="round"
+        lineJoin="round"
+      />
+    );
 
     // Animate the line (moving segment), LED, and squares simultaneously
     // Also fade out previous squares and LED
