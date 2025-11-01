@@ -12,7 +12,17 @@ import {
   useRandom,
   waitFor,
 } from "@motion-canvas/core";
-import { GRID_BLACK, GRID_BLUE, LED_BLUE, LED_OFF } from "@/lib/design-system";
+import {
+  GRID_BLACK,
+  GRID_BLUE,
+  GRID_GREEN,
+  GRID_WHITE,
+  LED_BLUE,
+  LED_OFF,
+  LED_ON,
+} from "@/lib/design-system";
+
+Color.createLerp;
 
 // Animation timing parameters
 const INTRO_DURATION = 5; // Duration for stars to appear initially
@@ -31,9 +41,6 @@ const STAR_COLORS = [
   new Color("#fafafa"), // Very light gray
 ];
 
-// Very dim LED color (just barely above black)
-const LED_DIM_STAR = new Color("#0a0a12");
-
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
   const randomGenerator = useRandom();
@@ -51,6 +58,13 @@ export default makeScene2D(function* (view) {
     ledColor: LED_BLUE,
     gridColor: GRID_BLUE,
   });
+
+  yield* fillAnimated(
+    { gridColor: GRID_WHITE, ledColor: LED_ON },
+    FADE_OUT_DURATION
+  );
+
+  yield* waitFor(0.5);
 
   // Create stars (circles on the projector)
   const starRefs = createRefArray<Circle>();

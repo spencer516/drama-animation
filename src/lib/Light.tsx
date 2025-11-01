@@ -80,7 +80,12 @@ export class Light extends Node {
       this.color(color);
     } else {
       return function* (this: Light) {
-        for (const step of this.circle().fill(color, duration, linear)) {
+        for (const step of this.circle().fill(
+          color,
+          duration,
+          linear,
+          Color.createLerp("hsl")
+        )) {
           this.color(this.circle().fill() as Color);
           yield step;
         }

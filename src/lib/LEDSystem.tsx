@@ -5,6 +5,7 @@ import {
   Color,
   createRef,
   createRefArray,
+  linear,
   Reference,
   ReferenceArray,
   ThreadGenerator,
@@ -102,8 +103,12 @@ export function createFilledGrid(
   ) {
     yield* all(
       ledSystem().fillAll(ledColor, duration),
-      ...horizontalLines.map((line) => line.stroke(gridColor, duration)),
-      ...verticalLines.map((line) => line.stroke(gridColor, duration))
+      ...horizontalLines.map((line) =>
+        line.stroke(gridColor, duration, linear, Color.createLerp("hsl"))
+      ),
+      ...verticalLines.map((line) =>
+        line.stroke(gridColor, duration, linear, Color.createLerp("hsl"))
+      )
     );
   }
 
