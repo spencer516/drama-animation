@@ -1,15 +1,22 @@
-import { Code, Layout, makeScene2D, Rect } from "@motion-canvas/2d";
+import { Code, Layout, makeScene2D, Rect, Txt } from "@motion-canvas/2d";
 import { setupLEDScene } from "@/lib/LEDSystem";
-import { all, createRefArray, waitFor } from "@motion-canvas/core";
+import {
+  all,
+  createRefArray,
+  sequence,
+  useRandom,
+  waitFor,
+} from "@motion-canvas/core";
 import makeStreet from "@/lib/scenes/street";
 import {
   allPositions,
   Position,
   positionToRect,
 } from "@/lib/wall-coordinate-system";
+import shuffleArray from "@/lib/shuffle-array";
 
 // Animation constants
-const FADE_IN_DURATION = 1;
+const FADE_IN_DURATION = 0.5;
 const PAUSE_DURATION = 1;
 const FADE_OUT_NON_PRIMES_DURATION = 1;
 const FINAL_FADE_OUT_DURATION = 1;
@@ -27,6 +34,7 @@ function isPrime(num: number): boolean {
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
+  const random = useRandom();
 
   const boxRefs = createRefArray<Layout>();
 
@@ -34,17 +42,16 @@ export default makeScene2D(function* (view) {
 
   screen().add(
     allPositions().map((position, num) => {
-      const { x, y, width, height } = positionToRect(position, 1, 1);
+      const { x, y } = positionToRect(position, 1, 1);
 
       return (
-        <Layout ref={boxRefs} opacity={0}>
-          <Rect x={x} y={y} width={width} height={height} fill="white" />
-          <Code
-            fontSize={90}
+        <Layout ref={boxRefs} opacity={0} scale={1.5}>
+          <Txt
+            fontSize={80}
             x={x}
             y={y + 12}
-            fill="black"
-            code={(num + 1).toString()}
+            fill="white"
+            text={(num + 1).toString()}
           />
         </Layout>
       );
@@ -53,7 +60,12 @@ export default makeScene2D(function* (view) {
 
   // Fade in all numbers
   yield* waitFor(0.5);
-  yield* all(...boxRefs.map((ref) => ref.opacity(1, FADE_IN_DURATION)));
+  yield* sequence(
+    0.02,
+    ...shuffleArray(random, boxRefs).map((ref) =>
+      all(ref.scale(1, FADE_IN_DURATION), ref.opacity(1, FADE_IN_DURATION))
+    )
+  );
 
   // Pause
   yield* waitFor(PAUSE_DURATION);
@@ -63,18 +75,30 @@ export default makeScene2D(function* (view) {
   for (let i = 0; i < boxRefs.length; i++) {
     const num = i + 1;
     if (!isPrime(num)) {
+      const box = boxRefs[i];
       fadeOutAnimations.push(
-        boxRefs[i].opacity(0, FADE_OUT_NON_PRIMES_DURATION)
+        all(
+          box.scale(0.5, FADE_OUT_NON_PRIMES_DURATION),
+          box.opacity(0, FADE_OUT_NON_PRIMES_DURATION)
+        )
       );
     }
   }
-  yield* all(...fadeOutAnimations);
+  yield* sequence(0.02, ...shuffleArray(random, fadeOutAnimations));
 
   // Pause before final fade out
   yield* waitFor(PAUSE_DURATION);
 
   // Fade out remaining prime numbers
-  yield* all(...boxRefs.map((ref) => ref.opacity(0, FINAL_FADE_OUT_DURATION)));
+  yield* sequence(
+    0.02,
+    ...shuffleArray(random, boxRefs).map((ref) =>
+      all(
+        ref.opacity(0, FINAL_FADE_OUT_DURATION),
+        ref.scale(1.5, FINAL_FADE_OUT_DURATION * 1.2)
+      )
+    )
+  );
 
   yield* waitFor(1);
 });
