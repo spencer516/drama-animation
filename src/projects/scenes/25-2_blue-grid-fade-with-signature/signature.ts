@@ -1,3 +1,15 @@
+import { Coordinates } from "@/lib/wall-coordinate-system";
+
+type Spline = {
+  knots: SplineKnot;
+};
+
+type SplineKnot = {
+  position: Coordinates;
+  startHandle?: Coordinates;
+  endHandle?: Coordinates;
+};
+
 const svg = `
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1536 1024">
@@ -5,3 +17,8 @@ const svg = `
   <path d="M522.76,438.17c7.25-11.2,20.42-23.05,20.42-23.05" style="fill: none; stroke: #000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 8px;"/>
 </svg>
 `;
+
+export default function extractSpline(): Spline[] {
+  // Extract the SVG path data.
+  return [];
+}
