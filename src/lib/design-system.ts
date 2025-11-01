@@ -26,4 +26,6 @@ export const GRID_GREEN = new Color("#00ff00ff");
 
 export const GRID_YELLOW = new Color("#fbff00ff");
 
+export const GRID_RED = new Color("#ff0000ff");
+
 export const GRID_LINE_WIDTH = 8;
