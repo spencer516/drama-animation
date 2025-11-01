@@ -2,6 +2,7 @@ import { makeScene2D, Txt } from "@motion-canvas/2d";
 import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
 import {
   all,
+  createRef,
   createRefArray,
   delay,
   Random,
@@ -159,8 +160,17 @@ export default makeScene2D(function* (view) {
   const numberRefs = createRefArray<Txt>();
   const configs = generateConfigs(randomGenerator);
 
-  screen().add(
-    configs.map((config) => (
+  const addressRef = createRef<Txt>();
+
+  screen().add([
+    <Txt
+      ref={addressRef}
+      text="451c Chapter Road, London, NW2 5NG"
+      fontSize={60}
+      fill="white"
+      opacity={0}
+    />,
+    ...configs.map((config) => (
       <Txt
         ref={numberRefs}
         text={config.text}
@@ -172,8 +182,8 @@ export default makeScene2D(function* (view) {
         opacity={0}
         scale={3}
       />
-    ))
-  );
+    )),
+  ]);
 
   yield* all(
     ...numberRefs.map((txtRef, i) =>
@@ -189,7 +199,19 @@ export default makeScene2D(function* (view) {
 
   yield* waitFor(0.3);
 
-  numberRefs.map((number) => number.remove());
+  yield* all(
+    addressRef().opacity(1, 2),
+    addressRef().scale(1.2, 2),
+    ...numberRefs.map((txtRef, i) =>
+      delay(
+        configs[i].delay * 0.1,
+        all(
+          txtRef.scale(8, 0.4),
+          delay(0.2, txtRef.opacity(0, 0.15, easeOutCubic))
+        )
+      )
+    )
+  );
 
   yield* waitFor(3);
 });
