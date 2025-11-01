@@ -1,38 +1,35 @@
 import { makeScene2D, Txt } from "@motion-canvas/2d";
 import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
-import { all, createRef, spawn, waitFor } from "@motion-canvas/core";
+import { all, createRef, delay, spawn, waitFor } from "@motion-canvas/core";
 import { GRID_BLACK, GRID_BLUE, LED_BLUE, LED_OFF } from "@/lib/design-system";
 import makeChaoticNumbers from "@/lib/effects/chaotic-numbers";
 
 const NUMBERS_AND_FORMULAS = [
-  "2",
-  "4",
+  "1",
   "8",
-  "16",
-  "32",
+  "27",
   "64",
-  "128",
-  "256",
+  "125",
+  "216",
+  "343",
   "512",
-  "1024",
-  "2048",
-  "4096",
-  // Chaotic elements after 4096
-  "∫∞",
-  "e^πi = -1",
+  "729",
+  "1000",
+  "1331",
+  // Chaotic elements after 1331
   "∇²ψ",
-  "while(true)",
   "Σ∞",
-  "√-1",
+  "e^πi = -1",
   "φ = 1.618...",
+  "∫∞",
+  "√-1",
   "∂/∂t",
-  "lim→∞",
-  "∮",
   "λx.x",
-  "NaN",
-  "∞/0",
-  "console.log()",
+  "∮",
   "Δt→0",
+  "NaN",
+  "lim→∞",
+  "∞/0",
 ];
 
 export default makeScene2D(function* (view) {
@@ -58,31 +55,28 @@ export default makeScene2D(function* (view) {
 
   const chaoticNumbers = makeChaoticNumbers({
     numbers: NUMBERS_AND_FORMULAS,
-    randomSeed: 12345112,
+    randomSeed: 624987,
   });
 
-  const addressRef = createRef<Txt>();
-
-  screen().add([
-    <Txt
-      ref={addressRef}
-      text="451c Chapter Road, London, NW2 5NG"
-      fontSize={60}
-      fill="white"
-      opacity={0}
-    />,
-    ...chaoticNumbers.components,
-  ]);
+  screen().add(chaoticNumbers.components);
 
   yield* chaoticNumbers.animateIn();
 
   yield* waitFor(0.3);
 
   yield* all(
-    addressRef().opacity(1, 2),
-    addressRef().scale(1.2, 2),
-    chaoticNumbers.animateOut()
+    chaoticNumbers.animateOut(),
+    delay(
+      0.3,
+      fillAnimated(
+        {
+          ledColor: LED_BLUE,
+          gridColor: GRID_BLUE,
+        },
+        2
+      )
+    )
   );
 
-  yield* waitFor(3);
+  yield* waitFor(1);
 });
