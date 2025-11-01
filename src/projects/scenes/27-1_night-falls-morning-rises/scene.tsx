@@ -1,10 +1,12 @@
 import { Gradient, makeScene2D, Rect } from "@motion-canvas/2d";
 import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
 import {
+  all,
   Color,
   createRef,
   createRefArray,
   linear,
+  tween,
   waitFor,
 } from "@motion-canvas/core";
 import {
@@ -110,9 +112,37 @@ export default makeScene2D(function* (view) {
   ]);
 
   const currentY = rect().y();
-  yield* rect().y(
+
+  const ledAnimation = tween(SUNSET_SUNRISE_DURATION, (progress) => {
+    const gradientOffset = progress * (GRADIENT_COLORS.length - 2);
+
+    sequenceRows(false).forEach((row) => {
+      const rowProgress = row / 6;
+
+      // Calculate the color index in the gradient
+      const colorIndex = gradientOffset + rowProgress;
+
+      // Interpolate between the two nearest gradient colors
+      const lowerIndex = Math.floor(colorIndex);
+      const upperIndex = Math.ceil(colorIndex);
+      const localProgress = colorIndex - lowerIndex;
+
+      const lowerColor = new Color(GRADIENT_COLORS[lowerIndex]);
+      const upperColor = new Color(GRADIENT_COLORS[upperIndex]);
+      const rowColor = Color.lerp(lowerColor, upperColor, localProgress);
+
+      // Set all LEDs in this row to the calculated color
+      sequenceColumns(true).forEach((column) => {
+        ledSystem().fillAt([column, row], rowColor);
+      });
+    });
+  });
+
+  const gradientAnimation = rect().y(
     currentY - totalGradientHeight + height,
     SUNSET_SUNRISE_DURATION,
     linear
   );
+
+  yield* all(ledAnimation, gradientAnimation);
 });
