@@ -35,8 +35,7 @@ const NUMBERS_AND_FORMULAS = [
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
 
-  const { fill, fillAnimated, horizontalLines, verticalLines } =
-    createFilledGrid(ledSystem, screen);
+  const { fill, fillAnimated } = createFilledGrid(ledSystem, screen);
 
   fill({
     ledColor: LED_BLUE,
