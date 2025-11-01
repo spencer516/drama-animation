@@ -1,6 +1,6 @@
 import { makeScene2D } from "@motion-canvas/2d";
 import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
-import { all, waitFor } from "@motion-canvas/core";
+import { all, Color, easeInOutCubic, waitFor } from "@motion-canvas/core";
 import makePolice, {
   getPoliceLightPositions,
   POLICE_HEIGHT,
@@ -52,10 +52,22 @@ export default makeScene2D(function* (view) {
     ...verticalLines.map((line) =>
       all(
         line.startOffset(0, TRANSITION_TIME),
-        line.stroke(LED_BLUE, TRANSITION_TIME)
+        line.stroke(
+          LED_BLUE,
+          TRANSITION_TIME,
+          easeInOutCubic,
+          Color.createLerp("hsl")
+        )
       )
     ),
-    ...horizontalLines.map((line) => line.stroke(GRID_BLUE, TRANSITION_TIME)),
+    ...horizontalLines.map((line) =>
+      line.stroke(
+        GRID_BLUE,
+        TRANSITION_TIME,
+        easeInOutCubic,
+        Color.createLerp("hsl")
+      )
+    ),
     ledSystem().fillAll(LED_BLUE, TRANSITION_TIME)
   );
 

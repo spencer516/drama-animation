@@ -1,21 +1,11 @@
-import {
-  Knot,
-  Line,
-  makeScene2D,
-  Node,
-  Path,
-  Rect,
-  Spline,
-} from "@motion-canvas/2d";
+import { Line, makeScene2D, Node, Path, Spline } from "@motion-canvas/2d";
 import { setupLEDScene } from "@/lib/LEDSystem";
 import {
   all,
   chain,
-  createRef,
   createRefArray,
   delay,
   linear,
-  sequence,
   waitFor,
 } from "@motion-canvas/core";
 import {

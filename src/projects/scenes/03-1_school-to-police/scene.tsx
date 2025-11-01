@@ -1,6 +1,6 @@
 import { makeScene2D } from "@motion-canvas/2d";
 import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
-import { all, Color, waitFor } from "@motion-canvas/core";
+import { all, Color, easeInOutCubic, waitFor } from "@motion-canvas/core";
 import {
   GRID_BLACK,
   GRID_BLUE,
@@ -68,14 +68,31 @@ export default makeScene2D(function* (view) {
     ...verticalLines.map((line) =>
       all(
         line.startOffset(verticalDistanceOffset, TRANSITION_TIME),
-        line.stroke(GRID_YELLOW, TRANSITION_TIME)
+        line.stroke(
+          GRID_YELLOW,
+          TRANSITION_TIME,
+          easeInOutCubic,
+          Color.createLerp("hsl")
+        )
       )
     ),
     ...linesToFadeOut.map((line) => line.stroke(GRID_BLACK, TRANSITION_TIME)),
     ...linesToTransition.map((line) =>
-      line.stroke(GRID_YELLOW, TRANSITION_TIME)
+      line.stroke(
+        GRID_YELLOW,
+        TRANSITION_TIME,
+        easeInOutCubic,
+        Color.createLerp("hsl")
+      )
     ),
-    ...rects.map((rect) => rect.fill(GRID_YELLOW, TRANSITION_TIME))
+    ...rects.map((rect) =>
+      rect.fill(
+        GRID_YELLOW,
+        TRANSITION_TIME,
+        easeInOutCubic,
+        Color.createLerp("hsl")
+      )
+    )
   );
 
   yield* waitFor(0.1);
