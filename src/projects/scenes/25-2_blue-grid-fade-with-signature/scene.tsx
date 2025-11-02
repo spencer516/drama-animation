@@ -173,19 +173,16 @@ export default makeScene2D(function* (view) {
     )),
   ]);
 
-  const animations = [
+  [
     ...permHorizontalLines,
     ...rightHorizontalLines,
     ...leftHorizontalLines,
     ...permVerticalLines,
     ...topVerticalLines,
     ...bottomVerticalLines,
-  ].map((line) => line.stroke(GRID_BLUE, INITIAL_FADE_IN_DURATION));
+  ].map((line) => line.stroke(GRID_BLUE));
 
-  yield* all(
-    ledSystem().fillAll(LED_BLUE, INITIAL_FADE_IN_DURATION),
-    ...animations
-  );
+  ledSystem().fillAll(LED_BLUE);
 
   yield* all(
     ...ledFadePositions.map((position) =>
@@ -239,4 +236,6 @@ export default makeScene2D(function* (view) {
       )
     )
   );
+
+  yield* waitFor(0.2);
 });

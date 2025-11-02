@@ -7,6 +7,7 @@ import {
   createRefArray,
   linear,
   tween,
+  waitFor,
 } from "@motion-canvas/core";
 import { GRID_BLUE, GRID_LINE_WIDTH } from "@/lib/design-system";
 import {
@@ -135,4 +136,6 @@ export default makeScene2D(function* (view) {
   );
 
   yield* all(ledAnimation, gradientAnimation);
+
+  yield* waitFor(0.2);
 });
