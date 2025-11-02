@@ -52,9 +52,6 @@ export default class LEDExporterState {
   }
 
   private updateLight(lightID: LightID, color: Color) {
-    if (lightID === "L1") {
-      console.log("updating light", color.rgb());
-    }
     this.lightState.set(lightID, color);
   }
 
@@ -88,7 +85,9 @@ export default class LEDExporterState {
       });
     }
 
-    this.frames.push(newFrame);
+    this.frames[frameNumber] = newFrame;
+
+    // this.frames.push(newFrame);
   }
 
   public async finalize() {
@@ -98,11 +97,11 @@ export default class LEDExporterState {
       let index = 0;
       for (const { color } of frame.lights) {
         const channel = index * 3;
-        const [r, g, b] = color.rgb();
+        const [r, g, b, a] = color.rgba();
 
-        currentFrame[channel] = rgbToChannel(r);
-        currentFrame[channel + 1] = rgbToChannel(g);
-        currentFrame[channel + 2] = rgbToChannel(b);
+        currentFrame[channel] = rgbToChannel(r, a);
+        currentFrame[channel + 1] = rgbToChannel(g, a);
+        currentFrame[channel + 2] = rgbToChannel(b, a);
 
         index++;
       }
@@ -120,7 +119,7 @@ export default class LEDExporterState {
   }
 }
 
-function rgbToChannel(value: number): number {
+function rgbToChannel(value: number, alpha: number): number {
   const { round, min, max } = Math;
-  return max(0, min(100, round((100 * value) / 255)));
+  return max(0, min(100, round((100 * value * alpha) / 255)));
 }
