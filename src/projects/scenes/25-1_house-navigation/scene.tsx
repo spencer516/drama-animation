@@ -36,8 +36,8 @@ const PAUSE_DURATION = 1; // Pause duration at each point in seconds
 const SPEED_PER_SEGMENT = 0.2; // Time to traverse one grid segment in seconds
 
 // Color palettes
-const GRID_COLORS = [GRID_RED, GRID_BLUE, GRID_PURPLE, GRID_GREEN, GRID_YELLOW];
-const LED_COLORS = [LED_RED, LED_BLUE, LED_PURPLE, LED_GREEN, LED_YELLOW];
+const GRID_COLORS = [GRID_RED, GRID_PURPLE, GRID_GREEN, GRID_YELLOW];
+const LED_COLORS = [LED_RED, LED_PURPLE, LED_GREEN, LED_YELLOW];
 
 // Helper function to calculate Manhattan distance between two points
 function manhattanDistance(p1: Position, p2: Position): number {
@@ -47,6 +47,19 @@ function manhattanDistance(p1: Position, p2: Position): number {
 export default makeScene2D(function* (view) {
   const random = useRandom(248);
   const { ledSystem, screen } = setupLEDScene(view);
+  const lowerLayerRef = createRef<Rect>();
+  const higherLayerRef = createRef<Rect>();
+
+  screen().add(<Rect ref={lowerLayerRef} width="100%" height="100%" />);
+
+  const { fill } = createFilledGrid(ledSystem, screen);
+
+  screen().add(<Rect ref={higherLayerRef} width="100%" height="100%" />);
+
+  fill({
+    ledColor: LED_BLUE,
+    gridColor: GRID_BLUE,
+  });
 
   // Generate random interior points (excluding borders)
   // Ensure each point is at least 5 segments away from the previous one
@@ -73,8 +86,6 @@ export default makeScene2D(function* (view) {
     interiorPoints.push(newPoint);
     lastPoint = newPoint;
   }
-
-  console.log(interiorPoints);
 
   // Start from top-left corner
   const startPoint: Position = [0, 0];
@@ -164,7 +175,7 @@ export default makeScene2D(function* (view) {
     for (const squarePos of squarePositions) {
       const squareRef = createRef<Rect>();
       const { x, y, width, height } = positionToRect(squarePos);
-      screen().add(
+      lowerLayerRef().add(
         <Rect
           ref={squareRef}
           x={x}
@@ -178,7 +189,7 @@ export default makeScene2D(function* (view) {
       squareRefs.push(squareRef);
     }
 
-    screen().add(
+    higherLayerRef().add(
       <Line
         ref={lineRef}
         points={coordinates}
@@ -191,12 +202,13 @@ export default makeScene2D(function* (view) {
       />
     );
 
+    const isEnd = to[0] === startPoint[0] && to[1] === startPoint[1];
     // Animate the line (moving segment), LED, and squares simultaneously
     // Also fade out previous squares and LED
     const animations: any[] = [
       delay(SPEED_PER_SEGMENT, lineRef().start(1, duration, linear)),
       lineRef().end(1, duration, linear),
-      ledSystem().fillAt(to, ledColor, duration),
+      ledSystem().fillAt(to, isEnd ? LED_BLUE : ledColor, duration),
       ...squareRefs.map((ref) => ref().opacity(1, duration, easeInOutCubic)),
     ];
 
@@ -233,6 +245,10 @@ export default makeScene2D(function* (view) {
   ): Position[] {
     const [x, y] = point;
     const squares: Position[] = [];
+
+    if (x === startPoint[0] && y === startPoint[1]) {
+      return [];
+    }
 
     // Always add the 4 core surrounding squares
     // Top-left square
