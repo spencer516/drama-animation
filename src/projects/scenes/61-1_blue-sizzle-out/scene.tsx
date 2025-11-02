@@ -55,11 +55,6 @@ export default makeScene2D(function* (view) {
     )
     .map(withID);
 
-  const segmentLength = positionsToDistance([
-    [0, 0],
-    [1, 0],
-  ]);
-
   ledSystem().fillAll(LED_BLUE);
 
   screen().add(
@@ -242,6 +237,7 @@ export default makeScene2D(function* (view) {
     animatedSegments.add(segment.id);
 
     // Check which LEDs should fade
+    const ledsToKill = [];
     const ledAnimations = [];
     for (const pos of [segment.start, segment.end]) {
       const key = positionKey(pos);
@@ -250,6 +246,7 @@ export default makeScene2D(function* (view) {
       // If no more segments at this position, fade out the LED
       if (activeSegmentsAtPosition.get(key)?.size === 0) {
         ledAnimations.push(ledSystem().fillAt(pos, LED_OFF, LED_FADE_DURATION));
+        ledsToKill.push(pos);
       }
     }
 
@@ -262,6 +259,8 @@ export default makeScene2D(function* (view) {
       ),
       ...ledAnimations
     );
+
+    ledsToKill.map((position) => ledSystem().fillAt(position, LED_OFF));
   }
 
   // Execute each path as a continuous animation

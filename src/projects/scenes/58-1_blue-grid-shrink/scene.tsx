@@ -53,6 +53,7 @@ export default makeScene2D(function* (view) {
       TRANSITION_DURATION * 0.1,
       ...sequenceColumns()
         .filter((c) => c >= MAX_COLUMN)
+        .reverse()
         .map((column) =>
           ledSystem().fillColumn(
             column as ColumnPosition,
