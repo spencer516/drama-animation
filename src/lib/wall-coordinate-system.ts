@@ -91,9 +91,9 @@ export function positionToRect(
 /**
  * Returns an array of all positions in the grid system (16 columns x 6 rows)
  */
-export function allPositions(): Position[] {
-  return sequenceRows().flatMap((row) =>
-    sequenceColumns().map((column) => [column, row] as Position)
+export function allPositions(includeLast: boolean = true): Position[] {
+  return sequenceRows(includeLast).flatMap((row) =>
+    sequenceColumns(includeLast).map((column) => [column, row] as Position)
   );
 }
 
@@ -119,4 +119,8 @@ export function excludePositions(
     positionsToExclude.map(([col, row]) => `${col},${row}`)
   );
   return positions.filter(([col, row]) => !excludeSet.has(`${col},${row}`));
+}
+
+export function truncateAsColumn(number: number): ColumnPosition {
+  return Math.max(0, Math.min(15, number)) as ColumnPosition;
 }

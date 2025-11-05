@@ -1,4 +1,4 @@
-import { Code, Layout, makeScene2D, Rect, Txt } from "@motion-canvas/2d";
+import { Layout, makeScene2D, Txt } from "@motion-canvas/2d";
 import { setupLEDScene } from "@/lib/LEDSystem";
 import {
   all,
@@ -41,7 +41,7 @@ export default makeScene2D(function* (view) {
   makeStreet(ledSystem);
 
   screen().add(
-    allPositions().map((position, num) => {
+    allPositions(false).map((position, num) => {
       const { x, y } = positionToRect(position, 1, 1);
 
       return (

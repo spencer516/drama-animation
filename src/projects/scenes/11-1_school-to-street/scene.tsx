@@ -3,6 +3,6 @@ import { schoolToStreet } from "@/lib/transitions/school-to-street";
 
 export default makeScene2D(function* (view) {
   yield* schoolToStreet(view, {
-    transitionDuration: 1,
+    transitionDuration: 3,
   });
 });

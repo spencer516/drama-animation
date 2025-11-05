@@ -7,6 +7,7 @@ import {
   createRef,
   createRefArray,
   delay,
+  Random,
   Reference,
   useRandom,
   waitFor,
@@ -19,15 +20,18 @@ import {
   LED_ON,
 } from "@/lib/design-system";
 import {
+  ColumnPosition,
   Position,
   positionToCoordinates,
   RowPosition,
   sequenceColumns,
+  sequenceRows,
+  truncateAsColumn,
 } from "@/lib/wall-coordinate-system";
 
 type TransitionLine = {
-  top: Position;
-  bottom: Position;
+  start: Position;
+  end: Position;
   ref: Reference<Line>;
 };
 
@@ -35,7 +39,7 @@ type Params = {
   lineDuration: number;
   stagger: number;
   randomSeed: number;
-  direction: "home-to-school" | "school-to-home";
+  direction: "home-to-school" | "school-to-home" | "top-to-bottom";
 };
 
 export default function* homeToSchool(
@@ -45,37 +49,15 @@ export default function* homeToSchool(
   const { ledSystem, screen } = setupLEDScene(view);
   const randomGenerator = useRandom(randomSeed);
 
+  const isHorizontal = direction === "top-to-bottom";
+
   const { fill } = createFilledGrid(ledSystem, screen);
 
-  const LINES: TransitionLine[] = sequenceColumns().map((column) => {
-    const ref = createRef<Line>();
-    if (column === 0) {
-      return {
-        top: [column, 0],
-        bottom: [column, 1],
-        ref,
-      };
-    }
+  const LINES: TransitionLine[] = isHorizontal
+    ? makeHorizontalLines(randomGenerator)
+    : makeVerticalLines(randomGenerator);
 
-    if (column === 15) {
-      return {
-        top: [column, 4],
-        bottom: [column, 5],
-        ref,
-      };
-    }
-
-    const segment = Math.floor(column / 5);
-    const top = randomGenerator.nextInt(segment, 2 + segment) as RowPosition;
-    const height = randomGenerator.nextInt(1, 6 - top);
-    const bottom = Math.min(top + height, 5) as RowPosition;
-
-    return {
-      top: [column, top],
-      bottom: [column, bottom],
-      ref,
-    };
-  });
+  // console.log(LINES);
 
   fill({
     ledColor: LED_BLUE,
@@ -83,10 +65,10 @@ export default function* homeToSchool(
   });
 
   screen().add(
-    LINES.map(({ top, bottom, ref }) => (
+    LINES.map(({ start, end, ref }) => (
       <Line
         ref={ref}
-        points={[positionToCoordinates(top), positionToCoordinates(bottom)]}
+        points={[positionToCoordinates(start), positionToCoordinates(end)]}
         lineWidth={GRID_LINE_WIDTH}
         stroke={GRID_WHITE.alpha(0)}
       />
@@ -97,18 +79,18 @@ export default function* homeToSchool(
   const lineDurationThird = lineDuration / 3;
 
   yield* all(
-    ...orderedLines.map(({ ref, top, bottom }, index) =>
+    ...orderedLines.map(({ ref, start, end }, index) =>
       delay(
         index * stagger,
         chain(
           all(
             ref().stroke(GRID_WHITE, lineDurationThird),
-            ledSystem().fillInRange(top, bottom, LED_ON, lineDurationThird)
+            ledSystem().fillInRange(start, end, LED_ON, lineDurationThird)
           ),
           waitFor(lineDurationThird),
           all(
             ref().stroke(GRID_WHITE.alpha(0), lineDurationThird),
-            ledSystem().fillInRange(top, bottom, LED_BLUE, lineDurationThird)
+            ledSystem().fillInRange(start, end, LED_BLUE, lineDurationThird)
           )
         )
       )
@@ -116,4 +98,66 @@ export default function* homeToSchool(
   );
 
   yield* waitFor(0.2);
+}
+
+function makeHorizontalLines(randomGenerator: Random): TransitionLine[] {
+  const rows = sequenceRows().reverse();
+  const sequence = [...rows, ...Array.from(rows).reverse().slice(1)];
+
+  return sequence.map((row, index) => {
+    const ref = createRef<Line>();
+    const segment = (index / sequence.length) * 6;
+    const midpoint = randomGenerator.nextInt(3 + segment, 9 + segment);
+    const width = randomGenerator.nextInt(3, 6);
+
+    const start = truncateAsColumn(
+      Math.round(midpoint - width / 2)
+    ) as ColumnPosition;
+
+    const end = truncateAsColumn(
+      Math.round(midpoint + width / 2)
+    ) as ColumnPosition;
+
+    if (row === 5) {
+      console.log({ row, start, end, midpoint, width });
+    }
+
+    return {
+      start: [start, row],
+      end: [end, row],
+      ref,
+    };
+  });
+}
+
+function makeVerticalLines(randomGenerator: Random): TransitionLine[] {
+  return sequenceColumns().map((column) => {
+    const ref = createRef<Line>();
+    if (column === 0) {
+      return {
+        start: [column, 0],
+        end: [column, 1],
+        ref,
+      };
+    }
+
+    if (column === 15) {
+      return {
+        start: [column, 4],
+        end: [column, 5],
+        ref,
+      };
+    }
+
+    const segment = Math.floor(column / 5);
+    const start = randomGenerator.nextInt(segment, 2 + segment) as RowPosition;
+    const height = randomGenerator.nextInt(1, 6 - start);
+    const end = Math.min(start + height, 5) as RowPosition;
+
+    return {
+      start: [column, start],
+      end: [column, end],
+      ref,
+    };
+  });
 }

@@ -38,7 +38,7 @@ const GRADIENT_COLORS = [
   GRID_BLUE,
 ];
 
-const SUNSET_SUNRISE_DURATION = 10;
+const SUNSET_SUNRISE_DURATION = 25;
 
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
