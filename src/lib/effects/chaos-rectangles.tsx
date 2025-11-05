@@ -47,8 +47,6 @@ export default function* chaosRectangles(
   const randomGenerator = useRandom(randomSeed);
   const COLORS = makeColors(baseColor ?? WHITE_BRIGHT);
 
-  console.log(COLORS.map((color) => color.hex()));
-
   // Generate a random 1x1 rectangle position
   const generateRandomRect = (): {
     position: Position;
