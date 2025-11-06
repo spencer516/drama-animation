@@ -1,13 +1,21 @@
-import { Rect, Txt } from "@motion-canvas/2d";
+import { Path, Rect, Txt } from "@motion-canvas/2d";
 import {
   all,
+  chain,
   createRefArray,
   delay,
+  easeInOutCubic,
   easeOutBounce,
   easeOutCubic,
+  linear,
+  loop,
   Random,
   Reference,
+  spawn,
+  tween,
   useRandom,
+  Vector2,
+  waitFor,
 } from "@motion-canvas/core";
 import { GRID_WHITE } from "../design-system";
 
@@ -46,8 +54,32 @@ export default function makeChaoticNumbers({ numbers, randomSeed }: Params) {
     />
   ));
 
-  const animateIn = () =>
-    all(
+  const animateIn = () => {
+    numberRefs.forEach((txtRef, i) => {
+      spawn(function* () {
+        const { delay, fontSize } = configs[i];
+
+        yield* waitFor(delay * 0.8);
+
+        yield* loop(function* () {
+          const path = new Path({
+            data: generateRandomBezierCurve(
+              txtRef.position(),
+              random,
+              fontSize * 0.4
+            ),
+          });
+
+          yield* tween(random.nextFloat(2), (progress) => {
+            // const easedProgress = easeInOutCubic(progress);
+
+            const position = path.getPointAtPercentage(progress).position;
+            txtRef.position(position);
+          });
+        });
+      });
+    });
+    return all(
       ...numberRefs.map((txtRef, i) =>
         delay(
           configs[i].delay,
@@ -58,6 +90,7 @@ export default function makeChaoticNumbers({ numbers, randomSeed }: Params) {
         )
       )
     );
+  };
 
   const animateOut = () =>
     all(
@@ -145,4 +178,64 @@ function generateConfigs(numbers: string[], random: Random): ItemConfig[] {
   });
 
   return configs;
+}
+
+const smoothness = 0.3;
+
+function generateRandomBezierCurve(
+  { x: startX, y: startY }: Vector2,
+  random: Random,
+  spread: number
+) {
+  const numPoints = random.nextInt(3, 6);
+  const points = [];
+
+  points.push({
+    x: startX,
+    y: startY,
+  });
+
+  for (let i = 0; i < numPoints; i++) {
+    const { x: lastX, y: lastY } = points.at(-1);
+    points.push({
+      x: lastX + random.nextInt(-1 * spread, spread),
+      y: lastY + random.nextInt(-1 * spread, spread),
+    });
+  }
+
+  points.push(...[...points].reverse().slice(1));
+
+  // Start the path
+  let pathData = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+
+  // Generate cubic Bezier curves between consecutive points
+  for (let i = 0; i < points.length - 1; i++) {
+    const current = points[i];
+    const next = points[i + 1];
+
+    // Calculate control points for smooth curve
+    // Control points are offset from the line between current and next points
+    const dx = next.x - current.x;
+    const dy = next.y - current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Generate random angles for control points
+    const angle1 = Math.random() * Math.PI * 2;
+    const angle2 = Math.random() * Math.PI * 2;
+
+    // Control point 1 (near current point)
+    const cp1x = current.x + Math.cos(angle1) * distance * smoothness;
+    const cp1y = current.y + Math.sin(angle1) * distance * smoothness;
+
+    // Control point 2 (near next point)
+    const cp2x = next.x + Math.cos(angle2) * distance * smoothness;
+    const cp2y = next.y + Math.sin(angle2) * distance * smoothness;
+
+    // Add cubic Bezier curve command
+    pathData += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)}, ${cp2x.toFixed(
+      2
+    )} ${cp2y.toFixed(2)}, ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
+  }
+
+  return pathData;
 }

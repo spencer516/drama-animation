@@ -76,7 +76,7 @@ export default makeScene2D(function* (view) {
 
   yield* chaoticNumbers.animateIn();
 
-  yield* waitFor(0.3);
+  yield* waitFor(10);
 
   yield* all(
     addressRef().opacity(1, 2),

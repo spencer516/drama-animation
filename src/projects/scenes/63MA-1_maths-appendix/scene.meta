@@ -1,0 +1,38 @@
+{
+  "version": 0,
+  "timeEvents": [
+    {
+      "name": "explains-the-problem",
+      "targetTime": 6.05553117571768
+    },
+    {
+      "name": "done-explain-problem",
+      "targetTime": 13.347778387273722
+    },
+    {
+      "name": "start-squares",
+      "targetTime": 20.248316338360063
+    },
+    {
+      "name": "show-formulas",
+      "targetTime": 26.446079573256085
+    },
+    {
+      "name": "multiply-square-A",
+      "targetTime": 44.18004821625017
+    },
+    {
+      "name": "multiply-square-B",
+      "targetTime": 50.084273619366826
+    },
+    {
+      "name": "multiply-square-c",
+      "targetTime": 57.46190415768593
+    },
+    {
+      "name": "timer-done",
+      "targetTime": 240.7297860539255
+    }
+  ],
+  "seed": 644320456
+}
