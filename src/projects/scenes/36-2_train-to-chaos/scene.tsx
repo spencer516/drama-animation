@@ -14,7 +14,10 @@ export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
   const randomGenerator = useRandom();
 
-  const { horizontalLines, verticalLines, rects } = setupTrainStructure(screen);
+  const { horizontalLines, verticalLines, rects } = setupTrainStructure(
+    screen,
+    ledSystem
+  );
 
   const allLines = [...horizontalLines, ...verticalLines];
 

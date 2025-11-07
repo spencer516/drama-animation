@@ -16,7 +16,7 @@ export default makeScene2D(function* (view) {
   const { screen, ledSystem } = setupLEDScene(view);
   const addedHorizontalLines = createRefArray<Line>();
 
-  const { verticalLines, rects } = setupTrainStructure(screen);
+  const { verticalLines, rects } = setupTrainStructure(screen, ledSystem);
 
   screen().add(
     sequenceRows()
@@ -54,6 +54,7 @@ export default makeScene2D(function* (view) {
     sequence(
       TRANSITION_TIME * 0.15,
       ...sequenceRows()
+        .filter((row) => row < TRAIN_HEIGHT)
         .reverse()
         .map((row) => ledSystem().fillRow(row, LED_ON, TRANSITION_TIME * 0.7))
     )

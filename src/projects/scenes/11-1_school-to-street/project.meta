@@ -21,11 +21,8 @@
     "resolutionScale": 1,
     "colorSpace": "srgb",
     "exporter": {
-      "name": "@motion-canvas/ffmpeg",
-      "options": {
-        "fastStart": false,
-        "includeAudio": true
-      }
+      "name": "leds-exporter",
+      "options": {}
     }
   }
 }

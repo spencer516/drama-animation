@@ -82,7 +82,7 @@ export default makeScene2D(function* (view) {
   for (let i = 0; i < STAR_COUNT; i++) {
     const x = randomGenerator.nextFloat(-960, 960); // 1920 / 2 = 960
     const y = randomGenerator.nextFloat(-600, 600); // 1200 / 2 = 600
-    const size = randomGenerator.nextFloat(2, 3.5);
+    const size = randomGenerator.nextFloat(5, 8);
     const color = randomChoice(STAR_COLORS);
     const twinkleSpeed = randomGenerator.nextFloat(1, 9); // Duration for one twinkle cycle
     const twinklePhase = randomGenerator.nextFloat(0, Math.PI * 2); // Random starting phase

@@ -5,18 +5,18 @@ import { LED_YELLOW } from "../design-system";
 import { Position } from "../wall-coordinate-system";
 
 export const STREET_LIGHT_POSITIONS: Position[] = [
-  [0, 0],
-  [0, 1],
+  [1, 0],
+  [1, 1],
   [1, 2],
   [1, 3],
-  [2, 4],
-  [3, 5],
-  [15, 0],
-  [15, 1],
+  [1, 4],
+  [1, 5],
+  [14, 0],
+  [14, 1],
   [14, 2],
   [14, 3],
-  [13, 4],
-  [12, 5],
+  [14, 4],
+  [14, 5],
 ];
 
 export default function makeStreet(ledSystem: Reference<LEDSystem>): void {

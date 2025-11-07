@@ -4,21 +4,35 @@ import {
   Position,
   positionToCoordinates,
   positionToRect,
+  RowPosition,
   sequenceColumns,
   sequenceRows,
 } from "../wall-coordinate-system";
-import { GRID_LINE_WIDTH, GRID_WHITE } from "../design-system";
+import {
+  GRID_LINE_WIDTH,
+  GRID_WHITE,
+  LED_OFF,
+  LED_ON,
+  LED_RED,
+} from "../design-system";
+import { LEDSystem } from "../LEDSystem";
 
 export const TRAIN_HEIGHT = 2;
 
-export function setupTrainStructure(screen: Reference<Rect>): {
+export function setupTrainStructure(
+  screen: Reference<Rect>,
+  ledSystem: Reference<LEDSystem>
+): {
   horizontalLines: ReferenceArray<Line>;
   verticalLines: ReferenceArray<Line>;
   rects: ReferenceArray<Rect>;
+  lightRows: RowPosition[];
 } {
   const horizontalLines = createRefArray<Line>();
   const verticalLines = createRefArray<Line>();
   const rects = createRefArray<Rect>();
+
+  const lightRows = sequenceRows().filter((row) => row >= TRAIN_HEIGHT);
 
   const rectPositions = sequenceColumns(false).flatMap((column) =>
     sequenceRows(false)
@@ -32,6 +46,10 @@ export function setupTrainStructure(screen: Reference<Rect>): {
       })
       .filter(Boolean)
   );
+
+  for (const row of lightRows) {
+    ledSystem().fillRow(row, LED_ON);
+  }
 
   screen().add([
     ...sequenceColumns().map((column) => (
@@ -70,5 +88,5 @@ export function setupTrainStructure(screen: Reference<Rect>): {
     )),
   ]);
 
-  return { horizontalLines, verticalLines, rects };
+  return { horizontalLines, verticalLines, rects, lightRows };
 }

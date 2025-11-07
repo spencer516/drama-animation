@@ -1,7 +1,7 @@
 import { makeScene2D } from "@motion-canvas/2d";
 import { setupLEDScene } from "@/lib/LEDSystem";
 import { all, waitFor } from "@motion-canvas/core";
-import { LED_OFF, LED_RED } from "@/lib/design-system";
+import { LED_OFF, LED_ON, LED_RED } from "@/lib/design-system";
 import { setupTrainStructure } from "@/lib/scenes/train";
 import {
   ColumnPosition,
@@ -14,7 +14,7 @@ const LIGHT_FADE_DURATION = 0.2;
 export default makeScene2D(function* (view) {
   const { ledSystem, screen } = setupLEDScene(view);
 
-  setupTrainStructure(screen);
+  setupTrainStructure(screen, ledSystem);
 
   const base4Primes = base4PrimesUpTo(281);
   const lightPositions = getBase4LightPositions();
@@ -30,7 +30,7 @@ export default makeScene2D(function* (view) {
 
     yield* all(
       ...positions.map((position) =>
-        ledSystem().fillAt(position, LED_OFF, LIGHT_FADE_DURATION)
+        ledSystem().fillAt(position, LED_ON, LIGHT_FADE_DURATION)
       )
     );
 

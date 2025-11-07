@@ -1,7 +1,13 @@
 import { makeScene2D } from "@motion-canvas/2d";
 import { createFilledGrid, setupLEDScene } from "@/lib/LEDSystem";
 import { waitFor, useRandom, spawn } from "@motion-canvas/core";
-import { GRID_PURPLE, LED_OFF, LED_PURPLE } from "@/lib/design-system";
+import {
+  GRID_PURPLE,
+  GRID_RED,
+  LED_OFF,
+  LED_PURPLE,
+  LED_RED,
+} from "@/lib/design-system";
 import lightning from "@/lib/effects/lightning";
 import chaosRectangles from "@/lib/effects/chaos-rectangles";
 import { chaoticLineRemoval } from "@/lib/effects/random-chaotic-removal";
@@ -46,7 +52,7 @@ export default makeScene2D(function* (view) {
       randomSeed: 9901,
       totalBolts: 400,
       totalDuration: 5,
-      baseColor: LED_PURPLE,
+      baseColor: LED_RED,
     })
   );
 
@@ -58,7 +64,7 @@ export default makeScene2D(function* (view) {
       density: 4, // Max size: 1-4 grid units
       speed: 4, // 2x speed multiplier
       totalDuration: 5,
-      baseColor: GRID_PURPLE,
+      baseColor: GRID_RED,
     })
   );
 

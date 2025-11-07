@@ -4,9 +4,9 @@ import { waitFor } from "@motion-canvas/core";
 import { setupTrainStructure } from "@/lib/scenes/train";
 
 export default makeScene2D(function* (view) {
-  const { screen } = setupLEDScene(view);
+  const { screen, ledSystem } = setupLEDScene(view);
 
-  setupTrainStructure(screen);
+  setupTrainStructure(screen, ledSystem);
 
   yield* waitFor(2);
 });
