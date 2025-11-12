@@ -107,7 +107,7 @@ export default makeScene2D(function* (view) {
   const ledAnimation = tween(SUNSET_SUNRISE_DURATION, (progress) => {
     const gradientOffset = progress * (GRADIENT_COLORS.length - 2);
 
-    sequenceRows(false).forEach((row) => {
+    sequenceRows(true).forEach((row) => {
       const rowProgress = row / 6;
 
       // Calculate the color index in the gradient
